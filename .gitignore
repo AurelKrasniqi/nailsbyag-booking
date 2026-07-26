@@ -1,0 +1,20 @@
+# Build output
+target/
+build/
+node_modules/
+dist/
+
+# Secrets
+.env
+*.env
+application-local.properties
+application-prod.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+Thumbs.db
+.DS_Store
