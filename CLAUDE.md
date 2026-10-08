@@ -4,31 +4,20 @@ This file is the persistent context for Claude Code on this project. Read it ful
 
 ## Who this is for and why
 
-Aurel is a newly graduated developer (Bachelor in IT and Management, USN) job hunting for junior backend/fullstack roles in Norway. This project exists to get real, defensible hands-on Spring Boot experience for his CV and technical interviews. **The primary goal is Aurel's learning, not fastest completion.** He knows Java fundamentals (OOP, separation of concerns, polymorphism) but lacks hands-on Spring Boot experience and has not worked with it consistently.
+Aurel is a newly graduated developer (Bachelor in IT and Management, USN) job hunting for junior backend/fullstack roles in Norway. This project exists to get real, defensible hands-on Spring Boot experience for his CV and technical interviews. **Goal: a working, deployed app he can show and explain in interviews.** He knows Java fundamentals (OOP, separation of concerns, polymorphism) but lacks hands-on Spring Boot experience and has not worked with it consistently.
 
-## Critical working rule for Claude Code
+## Working mode: hybrid vibe coding
 
-Aurel must be able to explain every line of domain logic in an interview. Follow this split strictly:
+Aurel has switched from strict learning mode to hybrid vibe coding. Claude writes the code, including entities, services, controllers, DTOs, availability logic and booking validation. Speed matters now, but he still has to be able to defend this project in interviews.
 
-**Do NOT silently generate for him — explain first, let him write it himself:**
-- JPA entities (SalonService, Employee, Customer, Appointment, etc.)
-- Service layer / business logic
-- The availability calculation (core feature — given a service + date, return bookable slots)
-- Booking validation (no double-booking, no past-dates, opening hours)
-- Controllers and DTOs
-
-For these, prefer explaining the concept, showing ONE small example, and asking questions, over writing the full file for him. If he explicitly asks you to just write it, you can, but by default push him to type it himself and ask "do you want me to explain this or write it?"
-
-**OK to generate directly, low learning value:**
-- pom.xml / dependency config
-- compose.yaml / Docker setup
-- Flyway migration SQL syntax (explain briefly, but this is fine to generate)
-- application.properties
-- React/frontend styling and boilerplate
-- Debugging help (this is actually high-value learning, always help fully here)
-- Git commands, GitHub setup
-
-Never let him commit a diff he can't explain back to you in plain language.
+Rules:
+- Build in small vertical slices (one feature at a time, following the build order below). Do not dump many features in one go.
+- After each slice, give a SHORT explanation (5 to 10 lines max, plain language): what was added, how the pieces connect, and the one or two design decisions an interviewer might ask about (for example why ddl-auto=validate, why price is an int, why a DTO instead of returning the entity).
+- Make sure it compiles and runs before calling a slice done. Test endpoints with curl and show the result.
+- Suggest a descriptive commit message per slice. Never commit secrets.
+- The availability calculation (step 5) is the interview centerpiece: write it as pure, unit-tested Java and walk Aurel through it more carefully than the rest.
+- If Aurel asks "why" about anything, explain fully. Debugging help is always welcome.
+- Keep the code simple and readable over clever. Prefer standard Spring Boot patterns he will see at work.
 
 ## Tech stack
 
@@ -51,7 +40,7 @@ nailsalon/
   CLAUDE.md    <- this file
 ```
 
-Current status: `backend/` scaffolded from start.spring.io, folder structure just fixed (was nested backend/backend, now flat). Dependencies: Spring Web, Spring Data JPA, PostgreSQL Driver, Validation, Flyway Migration, Lombok, Spring Boot DevTools.
+Current status: build order step 1 done (Postgres via Docker, Spring Boot connects, Flyway V1 creates `salon_service`). Next: step 2. Dependencies: Spring Web, Spring Data JPA, PostgreSQL Driver, Validation, Flyway Migration, Lombok, Spring Boot DevTools.
 
 ## Domain model (target)
 
@@ -85,4 +74,4 @@ Package-by-feature, not package-by-layer, e.g. `no.aurel.backend.salonservice` c
 
 ## After each phase
 
-Prompt Aurel to write a few sentences in `NOTES.md` (create if missing) explaining what he built and why, from memory, without looking at the code. This is his interview prep material. Don't write it for him.
+Remind Aurel (one line) to add 2 or 3 sentences to `NOTES.md` in his own words about what was built and why. This is his interview prep material. Don't write it for him.
