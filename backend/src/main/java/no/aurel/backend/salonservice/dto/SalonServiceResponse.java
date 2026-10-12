@@ -8,6 +8,8 @@ public record SalonServiceResponse(
         String description,
         int durationMinutes,
         int priceNok,
+        String category,
+        String subcategory,
         boolean active
 ) {
 
@@ -18,6 +20,8 @@ public record SalonServiceResponse(
                 entity.getDescription(),
                 entity.getDurationMinutes(),
                 entity.getPriceNok(),
+                entity.getCategory(),
+                entity.getSubcategory(),
                 entity.isActive()
         );
     }

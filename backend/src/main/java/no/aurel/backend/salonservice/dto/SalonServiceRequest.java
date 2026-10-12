@@ -10,6 +10,8 @@ public record SalonServiceRequest(
         @Size(max = 500) String description,
         @Positive int durationMinutes,
         @PositiveOrZero int priceNok,
+        @Size(max = 100) String category,
+        @Size(max = 100) String subcategory,
         boolean active
 ) {
 }

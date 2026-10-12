@@ -2,6 +2,7 @@ package no.aurel.backend.salonservice;
 
 import java.util.List;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +21,8 @@ public class SalonServiceService {
 
     @Transactional(readOnly = true)
     public List<SalonServiceResponse> findAll() {
-        return repository.findAll().stream()
+        // Sort by id so options inside a category keep the order they were inserted in
+        return repository.findAll(Sort.by("id")).stream()
                 .map(SalonServiceResponse::from)
                 .toList();
     }
@@ -55,6 +57,8 @@ public class SalonServiceService {
     private void apply(SalonService entity, SalonServiceRequest request) {
         entity.setName(request.name());
         entity.setDescription(request.description());
+        entity.setCategory(request.category());
+        entity.setSubcategory(request.subcategory());
         entity.setDurationMinutes(request.durationMinutes());
         entity.setPriceNok(request.priceNok());
         entity.setActive(request.active());

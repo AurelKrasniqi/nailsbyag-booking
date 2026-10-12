@@ -33,6 +33,14 @@ public class SalonService {
     @Column(name = "price_nok", nullable = false)
     private int priceNok;
 
+    // Groups options under one heading (e.g. "Nytt sett manikyr"); null means a standalone service
+    @Column(length = 100)
+    private String category;
+
+    // Optional second level inside a category (e.g. "Nytt sett" under "Manikyr")
+    @Column(length = 100)
+    private String subcategory;
+
     @Column(nullable = false)
     private boolean active = true;
 }
