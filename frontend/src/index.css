@@ -1,0 +1,69 @@
+:root {
+  /* Palette taken from the logo and price list */
+  --rose: #c4a5a8;
+  --rose-soft: #efe4e3;
+  --gold: #a98a5a;
+  --taupe: #8b8578;
+  --ink: #2f2626;
+  --muted: #6f6360;
+  --bg: #faf6f4;
+  --card-bg: #ffffff;
+  --border: #e6d8d6;
+  /* Call-to-action colour (the "Book nå" button), deliberately different from the soft rose/gold */
+  --cta: #a23e63;
+  --cta-hover: #8a3253;
+  --cta-text: #ffffff;
+
+  --font-heading: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --rose: #c4a5a8;
+    --rose-soft: #2c2224;
+    --gold: #cfae78;
+    --taupe: #b3ab9c;
+    --ink: #f3eae8;
+    --muted: #b9a9a6;
+    --bg: #1b1516;
+    --card-bg: #251d1f;
+    --border: #3b2f31;
+    --cta: #e48aa8;
+    --cta-hover: #ef9fb8;
+    --cta-text: #2a1a21;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Anchor links like "Se behandlinger" scroll smoothly instead of jumping */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
