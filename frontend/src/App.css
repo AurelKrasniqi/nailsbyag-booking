@@ -7,21 +7,63 @@
   padding: 3rem 1.25rem;
   text-align: center;
   color: #fff;
-  background:
-    linear-gradient(rgba(20, 14, 15, 0.55), rgba(20, 14, 15, 0.7)),
-    url('/images/hero.jpg') center / cover no-repeat;
+  overflow: hidden;
+  /* New stacking context, so the two layers below can sit behind the text without leaving the hero */
+  isolation: isolate;
+  /* On wide screens the photo is narrower than the hero. The sides are filled with the dark colours of the
+     photo's own left (black sleeve) and right edges, so the photo fades into them without a visible seam. */
+  background: linear-gradient(to right, #181514 50%, #423d39 50%);
+}
+
+/* The photo. Zoom: height is 145% of the hero (100% = whole photo height fits, higher = more zoomed in).
+   Position: top is -(zoom - 100%) * share, so 145% and 55% gives -24.75%. Raise the share to show lower parts. */
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -24.75%;
+  left: 50%;
+  z-index: -1;
+  height: 145%;
+  aspect-ratio: 1562 / 1890;
+  transform: translateX(-50%);
+  background: url('/images/hero.jpg') center / 100% 100% no-repeat;
+  /* Fade the photo's own left and right edges into the side colours */
+  mask-image: linear-gradient(to right, transparent, #000 30%, #000 70%, transparent);
+}
+
+/* Dark layer over the photo so the white text stays readable */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(rgba(20, 14, 15, 0.4), rgba(20, 14, 15, 0.58));
+}
+
+/* Phones are taller than the photo: it simply fills the whole hero, like a normal cover background */
+@media (max-width: 800px) {
+  .hero::before {
+    inset: 0;
+    height: auto;
+    aspect-ratio: auto;
+    transform: none;
+    background-size: cover;
+    background-position: center 52%;
+    mask-image: none;
+  }
 }
 
 .hero-inner {
   max-width: 560px;
 }
 
+/* The butterfly on its own (transparent background), so no circle or frame. The soft shadow keeps the thin
+   gold lines readable on top of the photo. */
 .logo {
-  width: 96px;
-  height: 96px;
+  width: auto;
+  height: 88px;
   margin-bottom: 1.25rem;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
 }
 
 .hero h1 {
@@ -55,7 +97,7 @@
   color: #fff;
   background: transparent;
   border: 1px solid #fff;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
 }
 
 /* The hero is always dark (photo overlay), so the hover colours are fixed, not theme variables */
@@ -171,11 +213,11 @@
   background: var(--rose-soft);
 }
 
+/* The butterfly stands in for a photo on treatments that do not have one yet */
 .service-media .placeholder-logo {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  opacity: 0.55;
+  width: auto;
+  height: 84px;
+  opacity: 0.85;
 }
 
 .service-body {
@@ -890,4 +932,209 @@
 
 .confirmation h2 {
   margin-top: 0;
+}
+
+/* Smooth hover everywhere: every button fades between its states instead of snapping */
+.add-button,
+.calendar-day,
+.time-slot,
+.link-button,
+.cart-toggle,
+.modal-close,
+.form-field input {
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+}
+
+.nav a,
+.footer a {
+  transition: color 0.3s ease, text-decoration-color 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button,
+  .add-button,
+  .calendar-day,
+  .time-slot,
+  .link-button,
+  .cart-toggle,
+  .modal-close,
+  .form-field input,
+  .nav a,
+  .footer a {
+    transition: none;
+  }
+}
+
+/* Comment box in the booking form */
+.form-field textarea {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  margin-top: 0.25rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  resize: vertical;
+  transition: border-color 0.3s ease;
+}
+
+.form-field textarea:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+
+.char-count {
+  display: block;
+  font-size: 0.75rem;
+  text-align: right;
+  color: var(--taupe);
+}
+
+/* Choice between paying at the salon and paying online with Vipps */
+.payment-choice {
+  padding: 0;
+  margin: 0 0 1rem;
+  border: none;
+}
+
+.payment-choice legend {
+  padding: 0;
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.payment-option {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.payment-option:hover,
+.payment-option.selected {
+  border-color: var(--cta);
+}
+
+.payment-option.selected {
+  background: color-mix(in srgb, var(--cta) 8%, transparent);
+}
+
+.payment-option input {
+  margin-top: 0.3rem;
+  accent-color: var(--cta);
+}
+
+.payment-option small {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--muted);
+}
+
+/* Extras ("Tillegg") step in the booking dialog */
+.addon-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.addon-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.addon-row:first-child {
+  border-top: none;
+}
+
+.addon-name {
+  display: flex;
+  flex-direction: column;
+}
+
+.addon-name small {
+  margin-top: 0.1rem;
+  color: var(--muted);
+}
+
+/* - 3 + for choosing how many nails */
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--gold);
+}
+
+.stepper-button {
+  width: 2.25rem;
+  height: 2.25rem;
+  font-family: var(--font-body);
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--ink);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+}
+
+.stepper-button:hover:not(:disabled) {
+  color: var(--cta-text);
+  background: var(--cta);
+}
+
+.stepper-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.stepper-value {
+  min-width: 2rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.cart-hint {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* A back link on the left and the main button on the right */
+.modal-footer-split {
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Footer: terms and privacy links, and the note shown when only paying at the salon is possible */
+.footer-links {
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+}
+
+.footer-links a {
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+.pay-at-salon-note {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
 }

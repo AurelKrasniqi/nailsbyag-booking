@@ -138,3 +138,345 @@
     grid-template-columns: 1fr;
   }
 }
+
+.appointment-comment {
+  font-style: italic;
+  color: var(--ink);
+}
+
+/* ---- Dashboard layout: a menu on the left (a row of tabs on phones) and one page at a time ---- */
+.admin-shell {
+  display: grid;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-shell .admin-main {
+  max-width: none;
+  margin: 0;
+  min-width: 0;
+}
+
+.admin-nav {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0 1.25rem;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-nav a {
+  padding: 0.85rem 0.9rem;
+  color: var(--muted);
+  text-decoration: none;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+
+.admin-nav a:hover {
+  color: var(--ink);
+}
+
+.admin-nav a.active {
+  color: var(--ink);
+  border-bottom-color: var(--gold);
+}
+
+@media (min-width: 860px) {
+  .admin-shell {
+    grid-template-columns: 210px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .admin-nav {
+    position: sticky;
+    top: 0;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 1.5rem 0.75rem;
+    overflow: visible;
+    border-bottom: none;
+  }
+
+  .admin-nav a {
+    padding: 0.65rem 0.9rem;
+    border-bottom: none;
+    border-left: 3px solid transparent;
+  }
+
+  .admin-nav a:hover {
+    background: color-mix(in srgb, var(--gold) 10%, transparent);
+  }
+
+  .admin-nav a.active {
+    background: color-mix(in srgb, var(--gold) 14%, transparent);
+    border-left-color: var(--gold);
+  }
+}
+
+.admin-page-title {
+  margin: 0 0 1.25rem;
+  font-size: 1.9rem;
+}
+
+.admin-two-columns {
+  display: grid;
+  gap: 0 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  align-items: start;
+}
+
+/* ---- Overview: a card per figure ---- */
+.stat-grid {
+  display: grid;
+  gap: 0 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-card p {
+  margin: 0;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.stat-value {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  line-height: 1.2;
+}
+
+.stat-value-small {
+  font-size: 1.25rem;
+  text-transform: capitalize;
+}
+
+.stat-hint {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.stat-card a {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.stat-card a:hover {
+  text-decoration: underline;
+}
+
+/* ---- Income ---- */
+.period-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+}
+
+.segmented button {
+  padding: 0.45rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.segmented button:hover {
+  color: var(--ink);
+}
+
+.segmented button.active {
+  color: var(--cta-text);
+  background: var(--cta);
+}
+
+.period-nav {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.period-nav .link-button {
+  font-size: 1.1rem;
+  text-decoration: none;
+}
+
+.period-label {
+  min-width: 8rem;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.earnings-label {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.earnings-amount {
+  margin: 0.15rem 0 1.25rem;
+  font-family: var(--font-heading);
+  font-size: clamp(2.2rem, 7vw, 3.2rem);
+  line-height: 1.1;
+}
+
+.breakdown {
+  margin: 0 0 1rem;
+}
+
+.breakdown > div {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.65rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.breakdown dt,
+.breakdown dd {
+  margin: 0;
+}
+
+.breakdown dd {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.breakdown-total {
+  font-weight: 600;
+}
+
+.income-table {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.income-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  width: 100%;
+  padding: 0.7rem 0.5rem;
+  text-align: left;
+}
+
+.income-row > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.income-row > :first-child {
+  flex: 1.3 1 0;
+}
+
+.income-row > :nth-child(2) {
+  flex: 0.5 1 0;
+}
+
+.income-row > :last-child {
+  text-align: right;
+}
+
+.income-head {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.income-line {
+  font-family: var(--font-body);
+  font-size: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.income-line:hover {
+  background: color-mix(in srgb, var(--gold) 8%, transparent);
+}
+
+.income-line.selected {
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+  border-left-color: var(--gold);
+}
+
+.income-label {
+  text-transform: capitalize;
+}
+
+.income-net {
+  position: relative;
+  display: block;
+  padding-bottom: 6px;
+}
+
+.income-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: block;
+  height: 3px;
+  background: var(--gold);
+  transition: width 0.4s ease;
+}
+
+@media (max-width: 640px) {
+  .income-table {
+    font-size: 0.8rem;
+  }
+
+  .income-row > :nth-child(2) {
+    display: none;
+  }
+}
+
+.vat-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  align-items: flex-end;
+}
+
+.vat-form .form-field {
+  max-width: 7rem;
+  margin-bottom: 0;
+}
+
+.vat-form .check-field {
+  padding-bottom: 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-nav a,
+  .segmented button,
+  .income-line,
+  .income-bar {
+    transition: none;
+  }
+}

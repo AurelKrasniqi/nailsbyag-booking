@@ -29,9 +29,13 @@ export interface AdminAppointment {
   customerName: string
   customerPhone: string
   serviceNames: string[]
+  addOns: { name: string; quantity: number; priceNok: number }[]
   totalPriceNok: number
   startTime: string
   endTime: string
+  comment: string | null
+  paymentMethod: 'AT_SALON' | 'VIPPS'
+  paymentStatus: 'UNPAID' | 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED'
   status: 'BOOKED' | 'CANCELLED' | 'COMPLETED'
 }
 
@@ -75,10 +79,18 @@ export function logout() {
   writeAuth(null)
 }
 
+// After too many wrong passwords the backend locks the login for a while (1, then 10, then 30 minutes).
+// The message already says how long to wait.
+export class LoginLockedError extends Error {}
+
 // Returns true when the backend accepts the credentials (GET /api/admin/me answers 200)
 export async function login(username: string, password: string): Promise<boolean> {
   const encoded = encodeCredentials(username, password)
   const response = await fetch('/api/admin/me', { headers: { Authorization: `Basic ${encoded}` } })
+  if (response.status === 429) {
+    const body = (await response.json().catch(() => null)) as { message?: string } | null
+    throw new LoginLockedError(body?.message ?? 'For mange feil forsøk. Prøv igjen senere.')
+  }
   if (response.status === 401) return false
   if (!response.ok) throw new Error(`Backend svarte med ${response.status}`)
   memoryAuth = encoded
@@ -86,7 +98,7 @@ export async function login(username: string, password: string): Promise<boolean
   return true
 }
 
-async function adminFetch(path: string, init: RequestInit = {}): Promise<Response> {
+export async function adminFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const response = await fetch(path, {
     ...init,
     headers: {

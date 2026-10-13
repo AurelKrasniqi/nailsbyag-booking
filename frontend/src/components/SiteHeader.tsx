@@ -1,7 +1,5 @@
 import { useState } from 'react'
 
-// Until the booking flow exists, customers book by sending AG a message on Instagram.
-const BOOKING_URL = 'https://ig.me/m/thebeautyroom.byag'
 const INSTAGRAM_URL = 'https://www.instagram.com/thebeautyroom.byag/'
 
 interface NavLink {
@@ -25,7 +23,7 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="site-header-inner">
         <a className="brand" href="#hjem" aria-label="The Beauty Room, til toppen">
-          <img src="/images/butterfly.png" alt="" />
+          <img src="/images/butterfly-gold.png" alt="" />
           <span>The Beauty Room</span>
         </a>
 
@@ -45,7 +43,7 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <a className="cta" href={BOOKING_URL} target="_blank" rel="noopener noreferrer">
+        <a className="cta" href="#behandlinger">
           Book nå
         </a>
 

@@ -25,7 +25,7 @@ export function ServiceCard({ card, selectedIds, onToggle }: ServiceCardProps) {
             style={image.position ? { objectPosition: image.position } : undefined}
           />
         ) : (
-          <img className="placeholder-logo" src="/images/logo.png" alt="" />
+          <img className="placeholder-logo" src="/images/butterfly-gold.png" alt="" />
         )}
       </div>
 

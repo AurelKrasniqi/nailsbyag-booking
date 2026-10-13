@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { login } from '../../api/admin'
+import { login, LoginLockedError } from '../../api/admin'
 
 export function LoginForm({ onLoggedIn }: { onLoggedIn: () => void }) {
   const [username, setUsername] = useState('')
@@ -14,8 +14,8 @@ export function LoginForm({ onLoggedIn }: { onLoggedIn: () => void }) {
     try {
       if (await login(username.trim(), password)) onLoggedIn()
       else setError('Feil brukernavn eller passord.')
-    } catch {
-      setError('Kunne ikke kontakte serveren. Prøv igjen.')
+    } catch (e) {
+      setError(e instanceof LoginLockedError ? e.message : 'Kunne ikke kontakte serveren. Prøv igjen.')
     } finally {
       setSubmitting(false)
     }

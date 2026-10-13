@@ -1,7 +1,9 @@
-const ADDRESS = 'Kleivene 131, 3041 Drammen'
-const PHONE_DISPLAY = '+47 401 73 963'
-const PHONE_LINK = 'tel:+4740173963'
-const INSTAGRAM_URL = 'https://www.instagram.com/thebeautyroom.byag/'
+import { BUSINESS } from '../business'
+
+const ADDRESS = BUSINESS.address
+const PHONE_DISPLAY = BUSINESS.phoneDisplay
+const PHONE_LINK = BUSINESS.phoneLink
+const INSTAGRAM_URL = BUSINESS.instagramUrl
 
 // Provisional opening hours. Later these should come from the backend (OpeningHours) so admin can edit them.
 const openingHours = [
@@ -39,7 +41,7 @@ export function SiteFooter() {
       <div className="footer-grid">
         <div>
           <h2 className="footer-brand">
-            <img src="/images/butterfly.png" alt="" />
+            <img src="/images/butterfly-gold.png" alt="" />
             The Beauty Room
           </h2>
           <p>Ta deg tid til deg selv. Hos oss i Drammen får du omsorg, detaljer og et resultat du vil vise frem.</p>
@@ -102,7 +104,13 @@ export function SiteFooter() {
         </a>
       </p>
 
-      <p className="copyright">© {new Date().getFullYear()} The Beauty Room by AG</p>
+      <p className="copyright">
+        © {new Date().getFullYear()} {BUSINESS.tradeName} · {BUSINESS.legalName}, org.nr. {BUSINESS.orgNumber}
+      </p>
+      <p className="footer-links">
+        <a href="#/vilkar">Salgsvilkår</a>
+        <a href="#/personvern">Personvern</a>
+      </p>
     </footer>
   )
 }

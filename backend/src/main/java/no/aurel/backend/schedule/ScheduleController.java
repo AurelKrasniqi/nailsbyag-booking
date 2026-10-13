@@ -1,6 +1,7 @@
 package no.aurel.backend.schedule;
 
 import java.net.URI;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import no.aurel.backend.schedule.dto.ScheduleExceptionResponse;
 public class ScheduleController {
 
     private final ScheduleService service;
+    private final Clock clock;
 
     @GetMapping("/opening-hours")
     public List<OpeningHoursResponse> getOpeningHours(@PathVariable Long employeeId) {
@@ -46,7 +48,7 @@ public class ScheduleController {
     public List<ScheduleExceptionResponse> getExceptions(
             @PathVariable Long employeeId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from) {
-        return service.getExceptions(employeeId, from != null ? from : LocalDate.now());
+        return service.getExceptions(employeeId, from != null ? from : LocalDate.now(clock));
     }
 
     @PostMapping("/schedule-exceptions")

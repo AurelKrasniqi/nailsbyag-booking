@@ -1,17 +1,25 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { ApiError, createAppointment, type Appointment } from '../api/appointments'
+import type { AddOn } from '../api/addOns'
+import { ApiError, createAppointment, type Appointment, type PaymentMethod } from '../api/appointments'
 import { fetchEmployees } from '../api/availability'
+import { fetchPaymentOptions } from '../api/paymentOptions'
 import type { SalonService } from '../api/salonServices'
-import { formatDuration, totalDurationMinutes, totalPriceNok } from '../cart'
+import { chosenAddOns, formatChoice, formatDuration, totalDurationMinutes, totalPriceNok } from '../cart'
 import { shortTime } from '../dates'
+import { AddOnPicker } from './AddOnPicker'
 import { BookingCalendar, type Selection } from './BookingCalendar'
 
 const LONG_DAY_FORMAT = new Intl.DateTimeFormat('nb-NO', { weekday: 'long', day: 'numeric', month: 'long' })
 
-type Step = 'pick' | 'details' | 'done'
+// extras = optional step where the customer adds things like glitter or charms (only if some fit the treatment)
+type Step = 'extras' | 'pick' | 'details' | 'done'
 
 interface BookingDialogProps {
   items: SalonService[]
+  // Extras that fit the chosen treatments, and how many of each is picked (by extra id)
+  extras: AddOn[]
+  quantities: Record<number, number>
+  onQuantityChange: (addOnId: number, quantity: number) => void
   // Close without booking
   onClose: () => void
   // Close after a successful booking (the cart is emptied)
@@ -22,8 +30,8 @@ function formatDay(date: string): string {
   return LONG_DAY_FORMAT.format(new Date(`${date}T00:00:00`))
 }
 
-export function BookingDialog({ items, onClose, onBooked }: BookingDialogProps) {
-  const [step, setStep] = useState<Step>('pick')
+export function BookingDialog({ items, extras, quantities, onQuantityChange, onClose, onBooked }: BookingDialogProps) {
+  const [step, setStep] = useState<Step>(extras.length > 0 ? 'extras' : 'pick')
   const [employeeId, setEmployeeId] = useState<number | null>(null)
   const [employeeError, setEmployeeError] = useState(false)
   const [selection, setSelection] = useState<Selection | null>(null)
@@ -31,6 +39,10 @@ export function BookingDialog({ items, onClose, onBooked }: BookingDialogProps) 
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
+  const [comment, setComment] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('AT_SALON')
+  // Online payment is only offered when the backend has it switched on. Until we know, only paying at the salon.
+  const [vippsEnabled, setVippsEnabled] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [confirmation, setConfirmation] = useState<Appointment | null>(null)
@@ -45,7 +57,14 @@ export function BookingDialog({ items, onClose, onBooked }: BookingDialogProps) 
       .catch(() => setEmployeeError(true))
   }, [])
 
+  useEffect(() => {
+    fetchPaymentOptions()
+      .then((options) => setVippsEnabled(options.vippsEnabled))
+      .catch(() => setVippsEnabled(false))
+  }, [])
+
   const serviceIds = items.map((s) => s.id)
+  const choices = chosenAddOns(extras, quantities)
   const chosen = selection && selection.time ? { date: selection.date, time: selection.time } : null
 
   function close() {
@@ -59,13 +78,22 @@ export function BookingDialog({ items, onClose, onBooked }: BookingDialogProps) 
     setSubmitting(true)
     setSubmitError(null)
     try {
-      const appointment = await createAppointment({
+      const result = await createAppointment({
         employeeId,
         serviceIds,
+        addOns: choices.map((c) => ({ addOnId: c.addOn.id, quantity: c.quantity })),
         startTime: `${chosen.date}T${chosen.time}`,
         customer: { name: name.trim(), phone: phone.trim(), email: email.trim() || undefined },
+        comment: comment.trim() || undefined,
+        paymentMethod: vippsEnabled ? paymentMethod : 'AT_SALON',
       })
-      setConfirmation(appointment)
+      if (result.paymentRedirectUrl) {
+        // Pay online: the time is held for a few minutes while the customer pays. Leave for the payment page;
+        // it sends the customer back to /#/betaling/<token> when done.
+        window.location.assign(result.paymentRedirectUrl)
+        return
+      }
+      setConfirmation(result.appointment)
       setStep('done')
     } catch (e) {
       if (e instanceof ApiError && e.status === 409) {
@@ -82,6 +110,8 @@ export function BookingDialog({ items, onClose, onBooked }: BookingDialogProps) 
     }
   }
 
+  const title = { extras: 'Vil du legge til noe ekstra?', pick: 'Velg dag og tid', details: 'Dine opplysninger', done: '' }[step]
+
   return (
     <div className="modal-backdrop" onClick={close}>
       <div
@@ -97,11 +127,23 @@ export function BookingDialog({ items, onClose, onBooked }: BookingDialogProps) 
 
         {step !== 'done' && (
           <>
-            <h2>{step === 'pick' ? 'Velg dag og tid' : 'Dine opplysninger'}</h2>
+            <h2>{title}</h2>
             <p className="modal-summary">
-              {items.map((s) => s.name).join(' + ')} · {formatDuration(totalDurationMinutes(items))} ·{' '}
-              <strong>{totalPriceNok(items)} kr</strong>
+              {items.map((s) => s.name).join(' + ')}
+              {choices.length > 0 && <> + {choices.map(formatChoice).join(', ')}</>} ·{' '}
+              {formatDuration(totalDurationMinutes(items, choices))} · <strong>{totalPriceNok(items, choices)} kr</strong>
             </p>
+          </>
+        )}
+
+        {step === 'extras' && (
+          <>
+            <AddOnPicker extras={extras} quantities={quantities} onChange={onQuantityChange} />
+            <div className="modal-footer">
+              <button type="button" className="button" onClick={() => setStep('pick')}>
+                {choices.length > 0 ? 'Fortsett' : 'Hopp over'}
+              </button>
+            </div>
           </>
         )}
 
@@ -113,12 +155,20 @@ export function BookingDialog({ items, onClose, onBooked }: BookingDialogProps) 
               <BookingCalendar
                 employeeId={employeeId}
                 serviceIds={serviceIds}
+                addOns={choices}
                 selection={selection}
                 onSelect={setSelection}
                 reloadToken={reloadToken}
               />
             )}
-            <div className="modal-footer">
+            <div className="modal-footer modal-footer-split">
+              {extras.length > 0 ? (
+                <button type="button" className="link-button" onClick={() => setStep('extras')}>
+                  ← Endre tillegg
+                </button>
+              ) : (
+                <span />
+              )}
               <button type="button" className="button" disabled={!chosen} onClick={() => setStep('details')}>
                 Fortsett
               </button>
@@ -163,12 +213,57 @@ export function BookingDialog({ items, onClose, onBooked }: BookingDialogProps) 
                 autoComplete="email"
               />
             </label>
+            <label className="form-field">
+              Kommentar til Agneta (valgfritt)
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                maxLength={500}
+                rows={3}
+                placeholder="For eksempel ønsket farge, inspirasjon eller allergier"
+              />
+              <span className="char-count">{comment.length}/500</span>
+            </label>
+
+            {!vippsEnabled && <p className="pay-at-salon-note">Du betaler i salongen når du kommer til timen.</p>}
+
+            {vippsEnabled && (
+            <fieldset className="payment-choice">
+              <legend>Betaling</legend>
+              <label className={`payment-option ${paymentMethod === 'AT_SALON' ? 'selected' : ''}`}>
+                <input
+                  type="radio"
+                  name="payment"
+                  checked={paymentMethod === 'AT_SALON'}
+                  onChange={() => setPaymentMethod('AT_SALON')}
+                />
+                <span>
+                  <strong>Betal i salongen</strong>
+                  <small>Du betaler når du kommer til timen.</small>
+                </span>
+              </label>
+              <label className={`payment-option ${paymentMethod === 'VIPPS' ? 'selected' : ''}`}>
+                <input
+                  type="radio"
+                  name="payment"
+                  checked={paymentMethod === 'VIPPS'}
+                  onChange={() => setPaymentMethod('VIPPS')}
+                />
+                <span>
+                  <strong>Betal nå med Vipps ({totalPriceNok(items, choices)} kr)</strong>
+                  <small>Du sendes til Vipps. Tiden holdes av i 10 minutter mens du betaler.</small>
+                </span>
+              </label>
+            </fieldset>
+            )}
 
             {submitError && <p className="error">{submitError}</p>}
 
             <div className="modal-footer">
               <button type="submit" className="button" disabled={submitting}>
-                {submitting ? 'Booker…' : 'Bekreft booking'}
+                {submitting
+                  ? paymentMethod === 'VIPPS' ? 'Sender deg til Vipps…' : 'Booker…'
+                  : paymentMethod === 'VIPPS' ? 'Gå til betaling' : 'Bekreft booking'}
               </button>
             </div>
           </form>
@@ -184,6 +279,12 @@ export function BookingDialog({ items, onClose, onBooked }: BookingDialogProps) 
             </p>
             <p>
               {confirmation.serviceNames.join(' + ')}
+              {confirmation.addOns.length > 0 && (
+                <>
+                  <br />
+                  Tillegg: {confirmation.addOns.map((a) => (a.quantity > 1 ? `${a.name} ×${a.quantity}` : a.name)).join(', ')}
+                </>
+              )}
               <br />
               Totalt {confirmation.totalPriceNok} kr
             </p>

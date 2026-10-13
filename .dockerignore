@@ -1,0 +1,18 @@
+# Keep the image small and, above all, keep secrets and local settings OUT of it
+.git
+**/node_modules
+**/target
+**/dist
+frontend/.vite
+
+# Local development settings contain passwords. They must never be baked into an image.
+**/application-local.properties
+**/application-prod.properties
+**/.env
+**/*.env
+
+# Not needed to build
+compose.yaml
+*.md
+.idea
+.vscode

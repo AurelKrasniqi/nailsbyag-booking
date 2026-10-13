@@ -16,6 +16,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import no.aurel.backend.appointment.dto.AppointmentRequest;
 import no.aurel.backend.appointment.dto.AppointmentResponse;
+import no.aurel.backend.appointment.dto.BookingResult;
+import no.aurel.backend.payment.BookingService;
 
 @RestController
 @RequestMapping("/api/appointments")
@@ -23,6 +25,7 @@ import no.aurel.backend.appointment.dto.AppointmentResponse;
 public class AppointmentController {
 
     private final AppointmentService service;
+    private final BookingService bookingService;
 
     @GetMapping
     public List<AppointmentResponse> findAll() {
@@ -35,13 +38,13 @@ public class AppointmentController {
     }
 
     @PostMapping
-    public ResponseEntity<AppointmentResponse> create(@Valid @RequestBody AppointmentRequest request) {
-        AppointmentResponse created = service.create(request);
-        return ResponseEntity.created(URI.create("/api/appointments/" + created.id())).body(created);
+    public ResponseEntity<BookingResult> create(@Valid @RequestBody AppointmentRequest request) {
+        BookingResult result = bookingService.book(request);
+        return ResponseEntity.created(URI.create("/api/appointments/" + result.appointment().id())).body(result);
     }
 
     @PutMapping("/{id}/cancel")
     public AppointmentResponse cancel(@PathVariable Long id) {
-        return service.cancel(id);
+        return bookingService.cancel(id);
     }
 }

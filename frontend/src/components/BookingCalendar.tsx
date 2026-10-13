@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchAvailability, type DayAvailability } from '../api/availability'
+import type { AddOnChoice } from '../cart'
 import { mondayBasedWeekday, monthRange, shortTime, toDateString } from '../dates'
 
 const WEEKDAYS = ['Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør', 'Søn']
@@ -14,6 +15,8 @@ export interface Selection {
 interface BookingCalendarProps {
   employeeId: number
   serviceIds: number[]
+  // Chosen extras: they lengthen the appointment, so they change which times are free
+  addOns: AddOnChoice[]
   selection: Selection | null
   onSelect: (selection: Selection | null) => void
   // Changing this number forces a fresh fetch (used after someone else took the time)
@@ -32,16 +35,24 @@ function firstOfMonth(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), 1)
 }
 
-export function BookingCalendar({ employeeId, serviceIds, selection, onSelect, reloadToken }: BookingCalendarProps) {
+export function BookingCalendar({
+  employeeId,
+  serviceIds,
+  addOns,
+  selection,
+  onSelect,
+  reloadToken,
+}: BookingCalendarProps) {
   const [month, setMonth] = useState(() => firstOfMonth(new Date()))
   const [loaded, setLoaded] = useState<LoadedMonth | null>(null)
 
   const { from, to } = monthRange(month)
-  const requestKey = `${employeeId}|${serviceIds.join(',')}|${from}|${reloadToken}`
+  const addOnPairs = addOns.map((c) => `${c.addOn.id}:${c.quantity}`)
+  const requestKey = `${employeeId}|${serviceIds.join(',')}|${addOnPairs.join(',')}|${from}|${reloadToken}`
 
   useEffect(() => {
     let cancelled = false
-    fetchAvailability(employeeId, serviceIds, from, to)
+    fetchAvailability(employeeId, serviceIds, addOnPairs, from, to)
       .then((result: DayAvailability[]) => {
         if (cancelled) return
         setLoaded({ key: requestKey, days: new Map(result.map((d) => [d.date, d.startTimes])), error: null })
@@ -52,7 +63,7 @@ export function BookingCalendar({ employeeId, serviceIds, selection, onSelect, r
     return () => {
       cancelled = true
     }
-    // requestKey already covers employeeId, serviceIds, the month and the reload token
+    // requestKey already covers employeeId, serviceIds, addOns, the month and the reload token
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestKey])
 

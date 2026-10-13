@@ -17,9 +17,11 @@ export async function fetchEmployees(): Promise<Employee[]> {
   return response.json()
 }
 
+// addOns: "extra id:quantity" pairs, e.g. ["1:4", "6:1"]. Extras make the treatment longer, so they change the free times.
 export async function fetchAvailability(
   employeeId: number,
   serviceIds: number[],
+  addOns: string[],
   from: string,
   to: string,
 ): Promise<DayAvailability[]> {
@@ -29,6 +31,9 @@ export async function fetchAvailability(
     from,
     to,
   })
+  if (addOns.length > 0) {
+    params.set('addOns', addOns.join(','))
+  }
   const response = await fetch(`/api/availability?${params}`)
   if (!response.ok) {
     throw new Error(`Backend svarte med ${response.status}`)

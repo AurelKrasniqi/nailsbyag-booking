@@ -16,13 +16,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
 
     // Customers need no account: they can browse, see free times and book. Everything else is for the admin (Agneta).
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, LoginThrottle loginThrottle) throws Exception {
         http
                 // Stateless HTTP Basic: the browser sends credentials on every request and no cookie is used,
                 // so there is no session for an attacker to ride on and CSRF protection has nothing to protect.
@@ -32,14 +33,21 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/services", "/api/services/*",
                                 "/api/employees", "/api/employees/*",
+                                "/api/add-ons", "/api/payment-options",
                                 "/api/availability").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/appointments").permitAll()
+                        // The customer's browser asks whether its payment went through (the token is the secret)
+                        .requestMatchers(HttpMethod.POST, "/api/bookings/*/check-payment").permitAll()
+                        // Buttons on the fake payment page; the controller only exists when the fake gateway is on
+                        .requestMatchers(HttpMethod.POST, "/api/dev/fake-vipps/*/*").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/**").hasRole("ADMIN")
                         .anyRequest().permitAll())
                 // Plain 401 without a WWW-Authenticate header, so the browser does not pop up its own login box
                 .httpBasic(basic -> basic.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
+                .exceptionHandling(e -> e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                // Refuses login attempts while the login is locked after repeated wrong passwords
+                .addFilterBefore(new LoginThrottleFilter(loginThrottle), BasicAuthenticationFilter.class);
         return http.build();
     }
 

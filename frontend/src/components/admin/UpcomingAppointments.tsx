@@ -31,7 +31,8 @@ export function UpcomingAppointments({ onUnauthorized }: { onUnauthorized: () =>
   }, [onUnauthorized])
 
   async function cancel(appointment: AdminAppointment) {
-    if (!window.confirm(`Avbestille timen til ${appointment.customerName}?`)) return
+    const refundNote = appointment.paymentStatus === 'PAID' ? ' Kunden har betalt med Vipps og får pengene tilbake.' : ''
+    if (!window.confirm(`Avbestille timen til ${appointment.customerName}?${refundNote}`)) return
     setError(null)
     try {
       await cancelAppointment(appointment.id)
@@ -62,6 +63,24 @@ export function UpcomingAppointments({ onUnauthorized }: { onUnauthorized: () =>
               <span className="admin-muted">
                 {a.serviceNames.join(' + ')} · {a.totalPriceNok} kr
               </span>
+              {a.addOns.length > 0 && (
+                <>
+                  <br />
+                  <span className="admin-muted">
+                    Tillegg: {a.addOns.map((x) => (x.quantity > 1 ? `${x.name} ×${x.quantity}` : x.name)).join(', ')}
+                  </span>
+                </>
+              )}
+              <br />
+              <span className={a.paymentStatus === 'PAID' ? 'admin-success' : 'admin-muted'}>
+                {a.paymentStatus === 'PAID' ? '✓ Betalt med Vipps' : 'Betaler i salongen'}
+              </span>
+              {a.comment && (
+                <>
+                  <br />
+                  <span className="appointment-comment">«{a.comment}»</span>
+                </>
+              )}
             </span>
             <button type="button" className="link-button" onClick={() => cancel(a)}>
               Avbestill

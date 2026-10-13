@@ -1,5 +1,6 @@
 package no.aurel.backend.availability;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -17,6 +18,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import lombok.RequiredArgsConstructor;
 import no.aurel.backend.appointment.Appointment;
+import no.aurel.backend.addon.AddOnService;
+import no.aurel.backend.addon.ResolvedAddOn;
+import no.aurel.backend.addon.dto.AddOnSelection;
 import no.aurel.backend.appointment.AppointmentRepository;
 import no.aurel.backend.availability.dto.DayAvailabilityResponse;
 import no.aurel.backend.employee.EmployeeRepository;
@@ -43,16 +47,18 @@ public class AvailabilityService {
     private final OpeningHoursRepository openingHoursRepository;
     private final ScheduleExceptionRepository exceptionRepository;
     private final AppointmentRepository appointmentRepository;
+    private final AddOnService addOnService;
+    private final Clock clock;
 
     public List<DayAvailabilityResponse> findAvailability(
-            Long employeeId, List<Long> serviceIds, LocalDate from, LocalDate to) {
+            Long employeeId, List<Long> serviceIds, List<AddOnSelection> addOns, LocalDate from, LocalDate to) {
         if (to.isBefore(from) || from.plusDays(MAX_DAYS).isBefore(to)) {
             throw badRequest("'to' must be on or after 'from', at most " + MAX_DAYS + " days apart");
         }
         if (!employeeRepository.existsById(employeeId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee " + employeeId + " not found");
         }
-        int duration = totalDurationMinutes(serviceIds);
+        int duration = totalDurationMinutes(serviceIds, addOns);
 
         List<OpeningHours> weeklyHours = openingHoursRepository.findByEmployeeId(employeeId);
         Map<LocalDate, List<ScheduleException>> exceptionsByDate = exceptionRepository
@@ -62,7 +68,7 @@ public class AvailabilityService {
                 .findActiveOverlapping(employeeId, from.atStartOfDay(), to.plusDays(1).atStartOfDay()).stream()
                 .collect(Collectors.groupingBy(a -> a.getStartTime().toLocalDate()));
 
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(clock);
         List<DayAvailabilityResponse> days = new ArrayList<>();
 
         for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
@@ -96,8 +102,8 @@ public class AvailabilityService {
         return days;
     }
 
-    // The cart is booked as one continuous appointment, so the length is the sum of the chosen treatments
-    private int totalDurationMinutes(List<Long> serviceIds) {
+    // The cart is booked as one continuous appointment: the chosen treatments plus any extras (glitter, charms, ...)
+    private int totalDurationMinutes(List<Long> serviceIds, List<AddOnSelection> addOns) {
         Set<Long> distinctIds = new HashSet<>(serviceIds);
         List<SalonService> services = salonServiceRepository.findAllById(distinctIds);
         if (distinctIds.isEmpty() || services.size() != distinctIds.size()) {
@@ -106,7 +112,11 @@ public class AvailabilityService {
         if (services.stream().anyMatch(s -> !s.isActive())) {
             throw badRequest("One or more services are not bookable");
         }
-        return services.stream().mapToInt(SalonService::getDurationMinutes).sum();
+        int treatmentMinutes = services.stream().mapToInt(SalonService::getDurationMinutes).sum();
+        int extraMinutes = addOnService.resolve(addOns, services).stream()
+                .mapToInt(ResolvedAddOn::totalDurationMinutes)
+                .sum();
+        return treatmentMinutes + extraMinutes;
     }
 
     // An appointment is stored with full date-times; the calculator works with times within one day

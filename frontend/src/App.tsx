@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { fetchAddOns, type AddOn } from './api/addOns'
 import { fetchSalonServices, type SalonService } from './api/salonServices'
+import { eligibleAddOns } from './cart'
 import { CartBar } from './components/CartBar'
 import { ServiceCard } from './components/ServiceCard'
 import { SiteFooter } from './components/SiteFooter'
@@ -22,6 +24,22 @@ function App() {
     )
   }
 
+  // Extras ("Tillegg") such as glitter or charms. quantities = how many of each the customer has picked, by extra id.
+  // Only extras that fit the chosen treatments are offered; if the list cannot be loaded the site works without extras.
+  const [allAddOns, setAllAddOns] = useState<AddOn[]>([])
+  const [quantities, setQuantities] = useState<Record<number, number>>({})
+  const extras = eligibleAddOns(allAddOns, selected)
+
+  function changeQuantity(addOnId: number, quantity: number) {
+    setQuantities((current) => ({ ...current, [addOnId]: quantity }))
+  }
+
+  useEffect(() => {
+    fetchAddOns()
+      .then(setAllAddOns)
+      .catch(() => setAllAddOns([]))
+  }, [])
+
   useEffect(() => {
     fetchSalonServices()
       .then((all) => setServices(all.filter((s) => s.active)))
@@ -35,7 +53,7 @@ function App() {
 
       <section className="hero" id="hjem">
         <div className="hero-inner">
-          <img className="logo" src="/images/logo.png" alt="The Beauty Room by AG logo" />
+          <img className="logo" src="/images/butterfly-gold.png" alt="The Beauty Room by AG logo" />
           <h1>The Beauty Room</h1>
           <p className="tagline">by AG · Drammen</p>
           <p className="offers">Russian manicure &amp; pedicure · Lash lift · Brow lamination</p>
@@ -87,8 +105,14 @@ function App() {
 
       <CartBar
         items={selected}
+        extras={extras}
+        quantities={quantities}
+        onQuantityChange={changeQuantity}
         onRemove={(id) => setSelected((current) => current.filter((s) => s.id !== id))}
-        onClear={() => setSelected([])}
+        onClear={() => {
+          setSelected([])
+          setQuantities({})
+        }}
       />
     </>
   )
