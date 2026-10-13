@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchSalonServices, type SalonService } from './api/salonServices'
+import { CartBar } from './components/CartBar'
 import { ServiceCard } from './components/ServiceCard'
 import { SiteFooter } from './components/SiteFooter'
 import { SiteHeader } from './components/SiteHeader'
@@ -10,6 +11,16 @@ function App() {
   const [services, setServices] = useState<SalonService[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // The cart: treatments the customer has clicked. Kept in order of selection.
+  const [selected, setSelected] = useState<SalonService[]>([])
+  const selectedIds = new Set(selected.map((s) => s.id))
+
+  function toggleService(service: SalonService) {
+    setSelected((current) =>
+      current.some((s) => s.id === service.id) ? current.filter((s) => s.id !== service.id) : [...current, service],
+    )
+  }
 
   useEffect(() => {
     fetchSalonServices()
@@ -67,12 +78,18 @@ function App() {
 
         <ul className="cards">
           {groupServices(services).map((card) => (
-            <ServiceCard key={card.key} card={card} />
+            <ServiceCard key={card.key} card={card} selectedIds={selectedIds} onToggle={toggleService} />
           ))}
         </ul>
       </main>
 
       <SiteFooter />
+
+      <CartBar
+        items={selected}
+        onRemove={(id) => setSelected((current) => current.filter((s) => s.id !== id))}
+        onClear={() => setSelected([])}
+      />
     </>
   )
 }

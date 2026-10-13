@@ -1,7 +1,14 @@
+import type { SalonService } from '../api/salonServices'
 import type { ServiceCardData } from '../groupServices'
 import { serviceImages } from '../serviceImages'
 
-export function ServiceCard({ card }: { card: ServiceCardData }) {
+interface ServiceCardProps {
+  card: ServiceCardData
+  selectedIds: Set<number>
+  onToggle: (service: SalonService) => void
+}
+
+export function ServiceCard({ card, selectedIds, onToggle }: ServiceCardProps) {
   const image = serviceImages[card.key]
   const [first] = card.options
   const hasOptions = card.options.length > 1
@@ -40,6 +47,7 @@ export function ServiceCard({ card }: { card: ServiceCardData }) {
                 <span className="option-name">{o.name}</span>
                 <span className="option-duration">ca. {o.durationMinutes} min</span>
                 <strong className="option-price">{o.priceNok} kr</strong>
+                <ToggleButton selected={selectedIds.has(o.id)} onClick={() => onToggle(o)} />
               </li>
             ))}
           </ul>
@@ -47,9 +55,18 @@ export function ServiceCard({ card }: { card: ServiceCardData }) {
           <>
             {first.description && <p className="service-description">{first.description}</p>}
             <p className="option-duration">ca. {first.durationMinutes} min</p>
+            <ToggleButton selected={selectedIds.has(first.id)} onClick={() => onToggle(first)} />
           </>
         )}
       </div>
     </li>
+  )
+}
+
+function ToggleButton({ selected, onClick }: { selected: boolean; onClick: () => void }) {
+  return (
+    <button type="button" className={`add-button ${selected ? 'selected' : ''}`} aria-pressed={selected} onClick={onClick}>
+      {selected ? '✓ Valgt' : 'Legg til'}
+    </button>
   )
 }

@@ -1,6 +1,8 @@
 package no.aurel.backend.appointment;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,6 +13,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -39,9 +43,17 @@ public class Appointment {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "service_id")
-    private SalonService service;
+    // The treatments in the customer's cart, booked as one continuous appointment
+    @ManyToMany
+    @JoinTable(
+            name = "appointment_service",
+            joinColumns = @JoinColumn(name = "appointment_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id"))
+    private Set<SalonService> services = new HashSet<>();
+
+    // Stored at booking time so later price edits don't change existing appointments
+    @Column(name = "total_price_nok", nullable = false)
+    private int totalPriceNok;
 
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;

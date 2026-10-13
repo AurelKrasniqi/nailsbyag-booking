@@ -58,8 +58,9 @@
   transition: background 0.2s, color 0.2s;
 }
 
+/* The hero is always dark (photo overlay), so the hover colours are fixed, not theme variables */
 .button:hover {
-  color: var(--ink);
+  color: #2f2626;
   background: #fff;
 }
 
@@ -597,4 +598,296 @@
   height: 100%;
   object-fit: cover;
   object-position: center 35%;
+}
+
+/* Add-to-cart button on each treatment */
+.add-button {
+  padding: 0.4rem 0.9rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--gold);
+  cursor: pointer;
+}
+
+.add-button:hover,
+.add-button.selected {
+  color: var(--cta-text);
+  background: var(--cta);
+  border-color: var(--cta);
+}
+
+.service-body > .add-button {
+  margin-top: 0.75rem;
+}
+
+.option {
+  grid-template-columns: 1fr auto auto auto;
+}
+
+@media (max-width: 480px) {
+  .option {
+    grid-template-columns: 1fr auto;
+  }
+}
+
+/* Sticky cart at the bottom of the screen */
+.cart-bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  background: var(--card-bg);
+  border-top: 1px solid var(--gold);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.cart-panel {
+  max-width: 720px;
+  max-height: 50vh;
+  padding: 1rem 1.25rem 0;
+  margin: 0 auto;
+  overflow-y: auto;
+}
+
+.cart-list {
+  padding: 0;
+  margin: 0 0 0.5rem;
+  list-style: none;
+}
+
+.cart-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.cart-item-name small {
+  display: block;
+  color: var(--taupe);
+}
+
+.cart-summary {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 720px;
+  padding: 0.75rem 1.25rem;
+  margin: 0 auto;
+}
+
+.cart-toggle,
+.link-button {
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.link-button {
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: underline;
+}
+
+/* Outside the hero the background follows the theme, so buttons there are filled with the brand colour */
+.cart-bar .button,
+.modal .button {
+  color: var(--cta-text);
+  background: var(--cta);
+  border-color: var(--cta);
+}
+
+.cart-bar .button:hover,
+.modal .button:hover {
+  color: var(--cta-text);
+  background: var(--cta-hover);
+  border-color: var(--cta-hover);
+}
+
+.button:disabled,
+.button:disabled:hover {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Booking calendar dialog */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(20, 14, 15, 0.55);
+}
+
+@media (min-width: 640px) {
+  .modal-backdrop {
+    align-items: center;
+  }
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 92vh;
+  padding: 1.5rem 1.25rem;
+  overflow-y: auto;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  color: var(--ink);
+}
+
+.modal h2 {
+  margin: 0 2rem 0.25rem 0;
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-summary {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.calendar-title {
+  text-transform: capitalize;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-weekday {
+  padding: 0.25rem 0;
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--taupe);
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--taupe);
+  background: transparent;
+  border: 1px solid transparent;
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.calendar-day.available {
+  color: var(--ink);
+  border-color: var(--border);
+  opacity: 1;
+  cursor: pointer;
+}
+
+.calendar-day.available:hover,
+.calendar-day.selected {
+  color: var(--cta-text);
+  background: var(--cta);
+  border-color: var(--cta);
+}
+
+.time-picker h3 {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1.05rem;
+  text-transform: capitalize;
+}
+
+.time-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr));
+  gap: 6px;
+}
+
+.time-slot {
+  padding: 0.5rem 0;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--gold);
+  cursor: pointer;
+}
+
+.time-slot:hover,
+.time-slot.selected {
+  color: var(--cta-text);
+  background: var(--cta);
+  border-color: var(--cta);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+
+.link-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Booking details form and confirmation */
+.chosen-time {
+  margin: 0 0 1rem;
+}
+
+.form-field {
+  display: block;
+  margin-bottom: 0.9rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.form-field input {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  margin-top: 0.25rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.form-field input:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+
+.confirmation h2 {
+  margin-top: 0;
 }
