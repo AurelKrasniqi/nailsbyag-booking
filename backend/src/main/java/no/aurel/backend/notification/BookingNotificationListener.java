@@ -11,6 +11,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 import lombok.RequiredArgsConstructor;
 import no.aurel.backend.appointment.BookingConfirmedEvent;
 import no.aurel.backend.appointment.dto.AppointmentResponse;
+import no.aurel.backend.customer.PhoneNumber;
 
 // When a booking is confirmed: a text message to the customer and an e-mail with all details to Agneta.
 // AFTER_COMMIT: nothing is sent for a booking that failed to save. @Async: the customer does not wait for Twilio,

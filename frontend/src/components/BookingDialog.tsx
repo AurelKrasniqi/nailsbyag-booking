@@ -6,6 +6,7 @@ import { fetchPaymentOptions } from '../api/paymentOptions'
 import type { SalonService } from '../api/salonServices'
 import { chosenAddOns, formatChoice, formatDuration, totalDurationMinutes, totalPriceNok } from '../cart'
 import { shortTime } from '../dates'
+import { isValidPhone, PHONE_ERROR } from '../phone'
 import { AddOnPicker } from './AddOnPicker'
 import { BookingCalendar, type Selection } from './BookingCalendar'
 
@@ -38,6 +39,7 @@ export function BookingDialog({ items, extras, quantities, onQuantityChange, onC
   const [reloadToken, setReloadToken] = useState(0)
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  const [phoneError, setPhoneError] = useState(false)
   const [email, setEmail] = useState('')
   const [comment, setComment] = useState('')
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('AT_SALON')
@@ -75,6 +77,10 @@ export function BookingDialog({ items, extras, quantities, onQuantityChange, onC
   async function submit(event: FormEvent) {
     event.preventDefault()
     if (!chosen || employeeId === null) return
+    if (!isValidPhone(phone)) {
+      setPhoneError(true)
+      return
+    }
     setSubmitting(true)
     setSubmitError(null)
     try {
@@ -195,13 +201,18 @@ export function BookingDialog({ items, extras, quantities, onQuantityChange, onC
               Telefon
               <input
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => {
+                  setPhone(e.target.value)
+                  setPhoneError(false)
+                }}
                 required
                 maxLength={30}
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
+                aria-invalid={phoneError}
               />
+              {phoneError && <span className="error">{PHONE_ERROR}</span>}
             </label>
             <label className="form-field">
               E-post (valgfritt)
@@ -288,7 +299,7 @@ export function BookingDialog({ items, extras, quantities, onQuantityChange, onC
               <br />
               Totalt {confirmation.totalPriceNok} kr
             </p>
-            <p className="status">Husk å ta et skjermbilde av denne bekreftelsen.</p>
+            <p className="status">Du får en bekreftelse på SMS.</p>
             <div className="modal-footer">
               <button type="button" className="button" onClick={onBooked}>
                 Lukk

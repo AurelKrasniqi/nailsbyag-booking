@@ -89,7 +89,7 @@ export function PaymentReturnPage({ token }: { token: string }) {
                 ? `Betalt med Vipps: ${appointment.totalPriceNok} kr`
                 : `Totalt ${appointment.totalPriceNok} kr, betales i salongen`}
             </p>
-            <p className="status">Husk å ta et skjermbilde av denne bekreftelsen.</p>
+            <p className="status">Du får en bekreftelse på SMS.</p>
           </>
         )}
 
