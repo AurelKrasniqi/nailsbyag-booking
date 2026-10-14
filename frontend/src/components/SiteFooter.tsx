@@ -1,16 +1,12 @@
+import { useEffect, useState } from 'react'
 import { BUSINESS } from '../business'
+import { fetchSalonOpeningHours, type HoursRow } from '../api/publicOpeningHours'
 
 const ADDRESS = BUSINESS.address
 const PHONE_DISPLAY = BUSINESS.phoneDisplay
 const PHONE_LINK = BUSINESS.phoneLink
 const INSTAGRAM_URL = BUSINESS.instagramUrl
 
-// Provisional opening hours. Later these should come from the backend (OpeningHours) so admin can edit them.
-const openingHours = [
-  { days: 'Mandag – Fredag', hours: '08:00 – 22:00' },
-  { days: 'Lørdag', hours: '09:00 – 18:00' },
-  { days: 'Søndag', hours: '12:00 – 18:00' },
-]
 
 // Embed URL without an API key; the plain link is a fallback and opens the real Google Maps.
 const mapEmbedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(ADDRESS)}&output=embed`
@@ -36,6 +32,13 @@ function Icon({ children }: { children: React.ReactNode }) {
 }
 
 export function SiteFooter() {
+  const [openingHours, setOpeningHours] = useState<HoursRow[]>([])
+
+  // Same hours Agneta edits in the admin page. If the fetch fails the list is simply empty.
+  useEffect(() => {
+    fetchSalonOpeningHours().then(setOpeningHours).catch(() => setOpeningHours([]))
+  }, [])
+
   return (
     <footer className="footer" id="kontakt">
       <div className="footer-grid">

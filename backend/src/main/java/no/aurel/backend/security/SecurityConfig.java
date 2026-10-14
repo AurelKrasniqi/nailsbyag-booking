@@ -33,6 +33,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/services", "/api/services/*",
                                 "/api/employees", "/api/employees/*",
+                                // Shown in the public footer; only the weekly hours are public, not the days off
+                                "/api/employees/*/opening-hours",
                                 "/api/add-ons", "/api/payment-options",
                                 "/api/availability").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/appointments").permitAll()
