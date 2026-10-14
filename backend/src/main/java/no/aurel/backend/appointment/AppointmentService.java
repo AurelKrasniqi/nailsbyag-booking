@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -46,6 +47,7 @@ public class AppointmentService {
     private final AvailabilityService availabilityService;
     private final AddOnService addOnService;
     private final Clock clock;
+    private final ApplicationEventPublisher events;
 
     // How long a time is held for an unfinished online payment
     @Value("${app.payment.hold-minutes:10}")
@@ -125,11 +127,17 @@ public class AppointmentService {
 
         // 3. Save. If someone else booked the same time a moment ago, the database's exclusion constraint
         //    refuses the insert. saveAndFlush makes that happen here, where we can turn it into a clear 409.
+        AppointmentResponse saved;
         try {
-            return AppointmentResponse.from(repository.saveAndFlush(appointment));
+            saved = AppointmentResponse.from(repository.saveAndFlush(appointment));
         } catch (DataIntegrityViolationException e) {
             throw timeTaken();
         }
+        // Pay at the salon is final straight away. Online payments announce themselves in markPaid instead.
+        if (appointment.getStatus() == AppointmentStatus.BOOKED) {
+            events.publishEvent(new BookingConfirmedEvent(saved));
+        }
+        return saved;
     }
 
     // The money was received: the held time becomes a confirmed booking. Safe to call twice.
@@ -138,6 +146,7 @@ public class AppointmentService {
         if (appointment.getStatus() == AppointmentStatus.PENDING_PAYMENT) {
             appointment.setStatus(AppointmentStatus.BOOKED);
             appointment.setPaymentStatus(PaymentStatus.PAID);
+            events.publishEvent(new BookingConfirmedEvent(AppointmentResponse.from(appointment)));
         }
     }
 

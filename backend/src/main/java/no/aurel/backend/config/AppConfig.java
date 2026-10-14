@@ -5,10 +5,12 @@ import java.time.ZoneId;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
 @EnableScheduling
+@EnableAsync
 public class AppConfig {
 
     // The salon is in Norway. Cloud servers run in UTC, so "now" must be asked for in Oslo time explicitly,
