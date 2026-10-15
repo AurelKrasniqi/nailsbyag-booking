@@ -63,7 +63,25 @@
   width: auto;
   height: 88px;
   margin-bottom: 1.25rem;
-  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 0 14px rgba(255, 204, 72, 0.55)) drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
+  animation: gold-glow 4.5s ease-in-out infinite;
+}
+
+/* A slow shimmer: the glow around the gold butterfly swells and fades */
+@keyframes gold-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 10px rgba(255, 204, 72, 0.4)) drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgba(255, 214, 96, 0.85)) drop-shadow(0 2px 10px rgba(0, 0, 0, 0.45));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo {
+    animation: none;
+  }
 }
 
 .hero h1 {
