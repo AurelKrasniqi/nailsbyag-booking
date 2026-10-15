@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import no.aurel.backend.addon.dto.AddOnSelection;
 import no.aurel.backend.salonservice.SalonService;
+import no.aurel.backend.servicegroup.ServiceGroup;
 
 @ExtendWith(MockitoExtension.class)
 class AddOnServiceTest {
@@ -25,19 +27,22 @@ class AddOnServiceTest {
     @InjectMocks
     private AddOnService addOnService;
 
-    private static SalonService treatment(String category, String subcategory) {
+    // Boxes: 1 = Nytt sett, 2 = Påfyll, 3 = Pedikyr
+    private static final long NEW_SET = 1, REFILL = 2, PEDICURE = 3;
+
+    private static SalonService treatment(long groupId) {
+        ServiceGroup group = new ServiceGroup();
+        group.setId(groupId);
         SalonService service = new SalonService();
-        service.setCategory(category);
-        service.setSubcategory(subcategory);
+        service.setGroup(group);
         return service;
     }
 
-    private static AddOn addOn(long id, String category, String subcategory, int price, int minutes, int max) {
+    private static AddOn addOn(long id, Set<Long> groups, int price, int minutes, int max) {
         AddOn addOn = new AddOn();
         addOn.setId(id);
         addOn.setName("Extra " + id);
-        addOn.setCategory(category);
-        addOn.setSubcategory(subcategory);
+        addOn.setGroupIds(groups);
         addOn.setPriceNok(price);
         addOn.setDurationMinutes(minutes);
         addOn.setMaxQuantity(max);
@@ -46,11 +51,11 @@ class AddOnServiceTest {
 
     @Test
     void priceAndDurationAreUnitTimesQuantity() {
-        AddOn glitter = addOn(1, "Manikyr", null, 15, 1, 10);
+        AddOn glitter = addOn(1, Set.of(NEW_SET, REFILL), 15, 1, 10);
         when(repository.findAllById(java.util.Set.of(1L))).thenReturn(List.of(glitter));
 
         List<ResolvedAddOn> result = addOnService.resolve(
-                List.of(new AddOnSelection(1L, 4)), List.of(treatment("Manikyr", "Nytt sett")));
+                List.of(new AddOnSelection(1L, 4)), List.of(treatment(NEW_SET)));
 
         assertThat(result).hasSize(1);
         assertThat(result.getFirst().totalPriceNok()).isEqualTo(60);
@@ -59,56 +64,56 @@ class AddOnServiceTest {
 
     @Test
     void noExtrasChosenMeansNothingToResolve() {
-        assertThat(addOnService.resolve(null, List.of(treatment("Manikyr", "Nytt sett")))).isEmpty();
-        assertThat(addOnService.resolve(List.of(), List.of(treatment("Manikyr", "Nytt sett")))).isEmpty();
+        assertThat(addOnService.resolve(null, List.of(treatment(NEW_SET)))).isEmpty();
+        assertThat(addOnService.resolve(List.of(), List.of(treatment(NEW_SET)))).isEmpty();
     }
 
     @Test
     void anExtraForManicureDoesNotFitAPedicure() {
-        AddOn glitter = addOn(1, "Manikyr", null, 15, 1, 10);
+        AddOn glitter = addOn(1, Set.of(NEW_SET, REFILL), 15, 1, 10);
         when(repository.findAllById(java.util.Set.of(1L))).thenReturn(List.of(glitter));
 
         assertThatThrownBy(() -> addOnService.resolve(
-                List.of(new AddOnSelection(1L, 2)), List.of(treatment("Pedikyr", null))))
+                List.of(new AddOnSelection(1L, 2)), List.of(treatment(PEDICURE))))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("cannot be added");
     }
 
     @Test
     void shapeChangeIsOnlyForARefill() {
-        assertThat(AddOnService.fits(addOn(5, "Manikyr", "Påfyll", 100, 15, 1), List.of(treatment("Manikyr", "Påfyll"))))
+        assertThat(AddOnService.fits(addOn(5, Set.of(REFILL), 100, 15, 1), List.of(treatment(REFILL))))
                 .isTrue();
-        assertThat(AddOnService.fits(addOn(5, "Manikyr", "Påfyll", 100, 15, 1), List.of(treatment("Manikyr", "Nytt sett"))))
+        assertThat(AddOnService.fits(addOn(5, Set.of(REFILL), 100, 15, 1), List.of(treatment(NEW_SET))))
                 .isFalse();
     }
 
     @Test
     void anExtraFitsIfAnyTreatmentInTheCartMatches() {
-        AddOn glitter = addOn(1, "Manikyr", null, 15, 1, 10);
+        AddOn glitter = addOn(1, Set.of(NEW_SET, REFILL), 15, 1, 10);
 
-        assertThat(AddOnService.fits(glitter, List.of(treatment("Pedikyr", null), treatment("Manikyr", "Påfyll"))))
+        assertThat(AddOnService.fits(glitter, List.of(treatment(PEDICURE), treatment(REFILL))))
                 .isTrue();
     }
 
     @Test
     void moreThanTheMaximumIsRejected() {
-        AddOn largeNails = addOn(4, "Manikyr", null, 100, 15, 1);
+        AddOn largeNails = addOn(4, Set.of(NEW_SET, REFILL), 100, 15, 1);
         when(repository.findAllById(java.util.Set.of(4L))).thenReturn(List.of(largeNails));
 
         assertThatThrownBy(() -> addOnService.resolve(
-                List.of(new AddOnSelection(4L, 2)), List.of(treatment("Manikyr", "Nytt sett"))))
+                List.of(new AddOnSelection(4L, 2)), List.of(treatment(NEW_SET))))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("quantity");
     }
 
     @Test
     void anInactiveExtraCannotBeBooked() {
-        AddOn glitter = addOn(1, "Manikyr", null, 15, 1, 10);
+        AddOn glitter = addOn(1, Set.of(NEW_SET, REFILL), 15, 1, 10);
         glitter.setActive(false);
         when(repository.findAllById(java.util.Set.of(1L))).thenReturn(List.of(glitter));
 
         assertThatThrownBy(() -> addOnService.resolve(
-                List.of(new AddOnSelection(1L, 1)), List.of(treatment("Manikyr", "Nytt sett"))))
+                List.of(new AddOnSelection(1L, 1)), List.of(treatment(NEW_SET))))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("not available");
     }
@@ -117,7 +122,7 @@ class AddOnServiceTest {
     void theSameExtraTwiceIsRejected() {
         assertThatThrownBy(() -> addOnService.resolve(
                 List.of(new AddOnSelection(1L, 1), new AddOnSelection(1L, 2)),
-                List.of(treatment("Manikyr", "Nytt sett"))))
+                List.of(treatment(NEW_SET))))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("twice");
     }
@@ -127,7 +132,7 @@ class AddOnServiceTest {
         when(repository.findAllById(java.util.Set.of(99L))).thenReturn(List.of());
 
         assertThatThrownBy(() -> addOnService.resolve(
-                List.of(new AddOnSelection(99L, 1)), List.of(treatment("Manikyr", "Nytt sett"))))
+                List.of(new AddOnSelection(99L, 1)), List.of(treatment(NEW_SET))))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("do not exist");
     }

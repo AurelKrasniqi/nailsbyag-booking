@@ -1,10 +1,17 @@
 package no.aurel.backend.addon;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,12 +35,11 @@ public class AddOn {
     @Column(name = "unit_label", length = 30)
     private String unitLabel;
 
-    // Which treatments this extra can be added to. A null subcategory means the whole category.
-    @Column(nullable = false, length = 100)
-    private String category;
-
-    @Column(length = 100)
-    private String subcategory;
+    // The boxes (service groups) whose treatments this extra can be added to
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "add_on_group", joinColumns = @JoinColumn(name = "add_on_id"))
+    @Column(name = "group_id")
+    private Set<Long> groupIds = new HashSet<>();
 
     // Price and duration for ONE unit (one nail, or the extra as a whole)
     @Column(name = "price_nok", nullable = false)

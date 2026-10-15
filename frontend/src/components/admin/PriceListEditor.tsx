@@ -4,7 +4,6 @@ import {
   fetchAllServices,
   reorderGroups,
   UnauthorizedError,
-  updateAddOn,
   updateService,
   type AdminAddOn,
 } from '../../api/admin'
@@ -13,6 +12,7 @@ import { fetchServiceGroups, type ServiceGroup } from '../../api/serviceGroups'
 import { groupServices } from '../../groupServices'
 import { AdminDialog } from './AdminDialog'
 import { ServiceGroupsEditor } from './ServiceGroupsEditor'
+import { AddOnsEditor } from './AddOnsEditor'
 import { TreatmentRow, type TreatmentRowData } from './TreatmentRow'
 
 interface Props {
@@ -85,17 +85,6 @@ export function PriceListEditor({ onUnauthorized }: Props) {
       active: row.active,
     })
     setServices((current) => current.map((s) => (s.id === saved.id ? saved : s)))
-  }
-
-  async function saveAddOn(row: TreatmentRowData) {
-    const original = addOns.find((a) => a.id === row.id)!
-    const saved = await updateAddOn({
-      ...original,
-      priceNok: row.priceNok,
-      durationMinutes: row.durationMinutes,
-      active: row.active,
-    })
-    setAddOns((current) => current.map((a) => (a.id === saved.id ? saved : a)))
   }
 
   // Moves one box on the website up or down. The whole list of boxes is sent, in the new order.
@@ -176,19 +165,7 @@ export function PriceListEditor({ onUnauthorized }: Props) {
         </section>
       ))}
 
-      <section className="admin-card">
-        <h2>Tillegg</h2>
-        <p className="admin-hint">Pris og tid gjelder per enhet (f.eks. per negl).</p>
-        <ul className="admin-list price-list">
-          {addOns.map((a) => (
-            <TreatmentRow
-              key={`${a.id}-${a.priceNok}-${a.durationMinutes}-${a.active}`}
-              row={{ ...a, priceOnRequest: false }}
-              onSave={(row) => guard(() => saveAddOn(row))}
-            />
-          ))}
-        </ul>
-      </section>
+      <AddOnsEditor groups={groups} addOns={addOns} setAddOns={setAddOns} onUnauthorized={onUnauthorized} />
 
       {editingBoxes && (
         <AdminDialog title="Rediger behandlinger" hasUnsavedChanges={unsaved} onClose={closeBoxEditor}>

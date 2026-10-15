@@ -972,3 +972,24 @@
   text-transform: uppercase;
   color: var(--gold);
 }
+
+/* Extras (Tillegg): a row has more fields, so the box choices and buttons get a line of their own */
+.addon-groups {
+  display: flex;
+  flex-wrap: wrap;
+  flex-basis: 100%;
+  gap: 0.25rem 1rem;
+  align-items: center;
+}
+
+.addon-actions {
+  display: inline-flex;
+  gap: 1rem;
+  align-items: center;
+  margin-left: auto;
+}
+
+.addon-actions .danger-link {
+  display: inline;
+  margin-top: 0;
+}

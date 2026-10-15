@@ -248,8 +248,25 @@ export async function fetchAllAddOns(): Promise<AdminAddOn[]> {
   return (await adminFetch('/api/add-ons/all')).json()
 }
 
-export async function updateAddOn(addOn: AdminAddOn): Promise<AdminAddOn> {
-  const body = { priceNok: addOn.priceNok, durationMinutes: addOn.durationMinutes, active: addOn.active }
-  const response = await adminFetch(`/api/add-ons/${addOn.id}`, { method: 'PUT', body: JSON.stringify(body) })
-  return response.json()
+// What the admin sets on an extra; the same shape is used to create one and to change one
+export interface AddOnInput {
+  name: string
+  unitLabel: string | null
+  priceNok: number
+  durationMinutes: number
+  maxQuantity: number
+  groupIds: number[]
+  active: boolean
+}
+
+export async function createAddOn(input: AddOnInput): Promise<AdminAddOn> {
+  return (await adminFetch('/api/add-ons', { method: 'POST', body: JSON.stringify(input) })).json()
+}
+
+export async function updateAddOn(id: number, input: AddOnInput): Promise<AdminAddOn> {
+  return (await adminFetch(`/api/add-ons/${id}`, { method: 'PUT', body: JSON.stringify(input) })).json()
+}
+
+export async function deleteAddOn(id: number): Promise<void> {
+  await adminFetch(`/api/add-ons/${id}`, { method: 'DELETE' })
 }

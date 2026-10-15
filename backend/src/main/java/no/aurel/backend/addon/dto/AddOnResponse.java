@@ -1,13 +1,15 @@
 package no.aurel.backend.addon.dto;
 
+import java.util.List;
+
 import no.aurel.backend.addon.AddOn;
 
+// groupIds: the boxes whose treatments this extra can be added to
 public record AddOnResponse(
         Long id,
         String name,
         String unitLabel,
-        String category,
-        String subcategory,
+        List<Long> groupIds,
         int priceNok,
         int durationMinutes,
         int maxQuantity,
@@ -19,8 +21,7 @@ public record AddOnResponse(
                 entity.getId(),
                 entity.getName(),
                 entity.getUnitLabel(),
-                entity.getCategory(),
-                entity.getSubcategory(),
+                entity.getGroupIds().stream().sorted().toList(),
                 entity.getPriceNok(),
                 entity.getDurationMinutes(),
                 entity.getMaxQuantity(),
