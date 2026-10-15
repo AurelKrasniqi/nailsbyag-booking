@@ -10,7 +10,8 @@ public record AddOnResponse(
         String subcategory,
         int priceNok,
         int durationMinutes,
-        int maxQuantity
+        int maxQuantity,
+        boolean active
 ) {
 
     public static AddOnResponse from(AddOn entity) {
@@ -22,6 +23,7 @@ public record AddOnResponse(
                 entity.getSubcategory(),
                 entity.getPriceNok(),
                 entity.getDurationMinutes(),
-                entity.getMaxQuantity());
+                entity.getMaxQuantity(),
+                entity.isActive());
     }
 }

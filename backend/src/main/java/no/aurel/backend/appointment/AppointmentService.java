@@ -78,6 +78,20 @@ public class AppointmentService {
                 .toList();
     }
 
+    // Appointments tomorrow (Oslo time) whose customer has not been reminded yet
+    @Transactional(readOnly = true)
+    public List<AppointmentResponse> findDueForReminder() {
+        LocalDate tomorrow = LocalDate.now(clock).plusDays(1);
+        return repository.findByStatusAndReminderSentAtIsNullAndStartTimeGreaterThanEqualAndStartTimeLessThan(
+                        AppointmentStatus.BOOKED, tomorrow.atStartOfDay(), tomorrow.plusDays(1).atStartOfDay()).stream()
+                .map(AppointmentResponse::from)
+                .toList();
+    }
+
+    public void markReminderSent(Long id) {
+        getOrThrow(id).setReminderSentAt(LocalDateTime.now(clock));
+    }
+
     public AppointmentResponse create(AppointmentRequest request) {
         // 1. Is the time actually offered? Same calculation the calendar uses, so the two can never disagree.
         //    It also rejects unknown employees/services and times in the past.
@@ -112,6 +126,10 @@ public class AppointmentService {
         appointment.setCustomerComment(
                 request.comment() == null || request.comment().isBlank() ? null : request.comment().trim());
         appointment.setPublicToken(UUID.randomUUID().toString());
+        // Booked today or tomorrow for tomorrow or earlier: the confirmation text is the reminder, send no second one
+        if (!request.startTime().toLocalDate().isAfter(LocalDate.now(clock).plusDays(1))) {
+            appointment.setReminderSentAt(LocalDateTime.now(clock));
+        }
 
         PaymentMethod method = request.paymentMethod() == null ? PaymentMethod.AT_SALON : request.paymentMethod();
         appointment.setPaymentMethod(method);

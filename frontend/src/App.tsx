@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
+import { DEFAULT_ABOUT_IMAGE, fetchAbout, type About } from './api/about'
 import { fetchAddOns, type AddOn } from './api/addOns'
 import { fetchSalonServices, type SalonService } from './api/salonServices'
+import { fetchServiceGroups, type ServiceGroup } from './api/serviceGroups'
 import { eligibleAddOns } from './cart'
+import { AboutSection } from './components/AboutSection'
 import { CartBar } from './components/CartBar'
 import { ServiceCard } from './components/ServiceCard'
 import { SiteFooter } from './components/SiteFooter'
@@ -11,6 +14,8 @@ import './App.css'
 
 function App() {
   const [services, setServices] = useState<SalonService[]>([])
+  const [groups, setGroups] = useState<ServiceGroup[]>([])
+  const [about, setAbout] = useState<About | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -34,6 +39,13 @@ function App() {
     setQuantities((current) => ({ ...current, [addOnId]: quantity }))
   }
 
+  // If the text cannot be loaded the box is left out; the rest of the site still works
+  useEffect(() => {
+    fetchAbout()
+      .then(setAbout)
+      .catch(() => setAbout(null))
+  }, [])
+
   useEffect(() => {
     fetchAddOns()
       .then(setAllAddOns)
@@ -41,8 +53,11 @@ function App() {
   }, [])
 
   useEffect(() => {
-    fetchSalonServices()
-      .then((all) => setServices(all.filter((s) => s.active)))
+    Promise.all([fetchSalonServices(), fetchServiceGroups()])
+      .then(([all, boxes]) => {
+        setServices(all.filter((s) => s.active))
+        setGroups(boxes)
+      })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false))
   }, [])
@@ -63,27 +78,16 @@ function App() {
         </div>
       </section>
 
-      <section className="container about" id="om-oss">
-        <h2 className="section-title">Om oss</h2>
-        <div className="about-card">
-          <div className="about-text">
-            <h3>Møt Agneta</h3>
-            <p>
-              Hei, jeg er Agneta, neglartist og eier av The Beauty Room by AG i Drammen. Jeg utfører russisk
-              manikyr og pedikyr, vippeløft, brynlaminering og microblading, og jobber også som freelance
-              makeupartist.
-            </p>
-            <p>
-              Jeg tar imot kunder alene, så du får min fulle oppmerksomhet hele timen. Hos meg er det rom for en
-              god prat og litt velfortjent tid for deg selv. Når du går herfra, skal du kjenne deg fin og være
-              stolt av resultatet.
-            </p>
-          </div>
-          <div className="about-image">
-            <img src="/images/om-oss.jpg" alt="Arbeidsplassen hos The Beauty Room by AG" loading="lazy" />
-          </div>
-        </div>
-      </section>
+      {about && (
+        <section className="container about" id="om-oss">
+          <h2 className="section-title">Om oss</h2>
+          <AboutSection
+            heading={about.heading}
+            body={about.body}
+            imageSrc={about.imageUrl ?? DEFAULT_ABOUT_IMAGE}
+          />
+        </section>
+      )}
 
       <main className="container" id="behandlinger">
         <h2 className="section-title">Behandlinger</h2>
@@ -95,8 +99,8 @@ function App() {
         )}
 
         <ul className="cards">
-          {groupServices(services).map((card) => (
-            <ServiceCard key={card.key} card={card} selectedIds={selectedIds} onToggle={toggleService} />
+          {groupServices(groups, services).map((card) => (
+            <ServiceCard key={card.groupId} card={card} selectedIds={selectedIds} onToggle={toggleService} />
           ))}
         </ul>
       </main>

@@ -5,7 +5,7 @@ import { PrivacyPage, TermsPage } from './LegalPages.tsx'
 import { FakeVippsPage, PaymentReturnPage } from './PaymentPages.tsx'
 
 // Minimal routing without a library, based on the part after # in the address:
-//   /#/admin             admin dashboard (/#/admin/timer, /#/admin/kalender, /#/admin/inntekt are its pages)
+//   /#/admin             admin dashboard (/#/admin/timer, /#/admin/kalender, /#/admin/priser, /#/admin/om-oss, /#/admin/inntekt are its pages)
 //   /#/betaling/<token>  where the customer lands after paying
 //   /#/fake-vipps/<ref>  development stand-in for the Vipps payment page
 //   /#/vilkar            terms of sale, /#/personvern  privacy policy

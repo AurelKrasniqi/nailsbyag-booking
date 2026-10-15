@@ -8,6 +8,12 @@ export interface SalonService {
   durationMinutes: number
   priceNok: number
   active: boolean
+  // Small print under the treatment, e.g. "Tillegg kan forekomme"
+  note: string | null
+  // No fixed price: shown as "kontakt oss" and cannot be booked online
+  priceOnRequest: boolean
+  // The box on the website the treatment is listed in
+  groupId: number
 }
 
 export async function fetchSalonServices(): Promise<SalonService[]> {

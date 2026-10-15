@@ -36,6 +36,10 @@ public class SecurityConfig {
                                 // Shown in the public footer; only the weekly hours are public, not the days off
                                 "/api/employees/*/opening-hours",
                                 "/api/add-ons", "/api/payment-options",
+                                // The "Om oss" box on the public site, and its photo
+                                "/api/about", "/api/about/image",
+                                // The boxes with the treatments, and their photos
+                                "/api/service-groups", "/api/service-groups/*/image",
                                 "/api/availability").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/appointments").permitAll()
                         // The customer's browser asks whether its payment went through (the token is the secret)

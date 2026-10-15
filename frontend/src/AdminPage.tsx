@@ -1,22 +1,26 @@
 import { useCallback, useEffect, useState } from 'react'
 import { isLoggedIn, logout } from './api/admin'
 import { fetchEmployees } from './api/availability'
+import { AboutSettings } from './components/admin/AboutSettings'
 import { ExceptionsEditor } from './components/admin/ExceptionsEditor'
 import { IncomePage } from './components/admin/IncomePage'
 import { LoginForm } from './components/admin/LoginForm'
 import { OpeningHoursEditor } from './components/admin/OpeningHoursEditor'
 import { OverviewPage } from './components/admin/OverviewPage'
+import { PriceListEditor } from './components/admin/PriceListEditor'
 import { UpcomingAppointments } from './components/admin/UpcomingAppointments'
 import './AdminPage.css'
 
 // The dashboard has one page per topic. The page is the part of the address after #/admin
-// (/#/admin = overview, /#/admin/timer, /#/admin/kalender, /#/admin/inntekt).
-type PageKey = 'oversikt' | 'timer' | 'kalender' | 'inntekt'
+// (/#/admin = overview, /#/admin/timer, /#/admin/kalender, /#/admin/priser, /#/admin/om-oss, /#/admin/inntekt).
+type PageKey = 'oversikt' | 'timer' | 'kalender' | 'priser' | 'om-oss' | 'inntekt'
 
 const PAGES: { key: PageKey; label: string; href: string; title: string }[] = [
   { key: 'oversikt', label: 'Oversikt', href: '#/admin', title: 'Oversikt' },
   { key: 'timer', label: 'Timer', href: '#/admin/timer', title: 'Kommende timer' },
   { key: 'kalender', label: 'Kalender', href: '#/admin/kalender', title: 'Åpningstider og fridager' },
+  { key: 'priser', label: 'Priser', href: '#/admin/priser', title: 'Priser og behandlinger' },
+  { key: 'om-oss', label: 'Om oss', href: '#/admin/om-oss', title: 'Om oss' },
   { key: 'inntekt', label: 'Inntekt', href: '#/admin/inntekt', title: 'Inntekt' },
 ]
 
@@ -93,6 +97,8 @@ export function AdminPage({ hash }: { hash: string }) {
 
             {page === 'oversikt' && <OverviewPage onUnauthorized={handleUnauthorized} />}
             {page === 'timer' && <UpcomingAppointments onUnauthorized={handleUnauthorized} />}
+            {page === 'priser' && <PriceListEditor onUnauthorized={handleUnauthorized} />}
+            {page === 'om-oss' && <AboutSettings onUnauthorized={handleUnauthorized} />}
             {page === 'inntekt' && <IncomePage onUnauthorized={handleUnauthorized} />}
             {page === 'kalender' && employeeId !== null && (
               <div className="admin-two-columns">

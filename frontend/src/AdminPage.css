@@ -480,3 +480,495 @@
     transition: none;
   }
 }
+
+/* Price list editor */
+.price-row {
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+}
+
+.price-row-hidden .price-name {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.price-name {
+  flex: 1 1 12rem;
+  font-weight: 600;
+}
+
+/* A number with its unit (kr, min) as one field: looks like the other text fields */
+.unit-input {
+  display: inline-flex;
+  align-items: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.unit-input:focus-within {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 22%, transparent);
+}
+
+.admin-page .unit-input input[type='number'] {
+  width: 4.5rem;
+  padding: 0.55rem 0.2rem 0.55rem 0.8rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px 0 0 6px;
+  box-shadow: none;
+}
+
+.admin-page .unit-input input[type='number']:focus {
+  box-shadow: none;
+}
+
+.unit-input span {
+  padding-right: 0.8rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.admin-page .price-name-input {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.admin-page input[type='checkbox'] {
+  accent-color: var(--gold);
+}
+
+.price-error {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.card-heading {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.move-buttons {
+  display: flex;
+  gap: 1rem;
+  white-space: nowrap;
+}
+
+.move-buttons .link-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ---- "Om oss" editor ---- */
+.editor-field {
+  margin-bottom: 1.5rem;
+}
+
+.editor-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.editor-field label,
+.editor-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.char-count {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.char-count.over {
+  font-weight: 500;
+  color: #b3261e;
+}
+
+.admin-page input[type='text'],
+.admin-page input[type='number'],
+.admin-page textarea {
+  padding: 0.7rem 0.85rem;
+  font: inherit;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-page .editor-field input[type='text'],
+.admin-page .editor-field textarea {
+  width: 100%;
+}
+
+.admin-page .editor-field textarea {
+  resize: vertical;
+}
+
+.admin-page input[type='text']:focus,
+.admin-page input[type='number']:focus,
+.admin-page textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 22%, transparent);
+}
+
+.field-hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.image-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.image-thumb {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.image-actions {
+  display: flex;
+  flex: 1 1 14rem;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.file-button {
+  cursor: pointer;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.visually-hidden:focus-visible + .file-button {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* The preview sits on the website's own background colour, like a snapshot of the page */
+.preview-frame {
+  padding: 1.5rem;
+  background: var(--bg);
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+}
+
+/* Stays at the bottom of the screen so "Lagre" is always in reach, however long the page is */
+.save-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.25rem;
+  margin: 1.5rem -1.25rem -1.25rem;
+  background: var(--card-bg);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.save-bar > span:first-child {
+  font-size: 0.92rem;
+}
+
+.save-bar-buttons {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.save-bar .admin-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.admin-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.admin-card-head .admin-hint {
+  max-width: 46ch;
+  margin-bottom: 0.5rem;
+}
+
+.admin-card-head .admin-button {
+  flex-shrink: 0;
+}
+
+/* ---- Window on top of the page (the "Rediger" buttons) ---- */
+.admin-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(47, 38, 38, 0.55);
+}
+
+.admin-dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(920px, 100%);
+  max-height: calc(100vh - 2rem);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+}
+
+.admin-dialog:focus {
+  outline: none;
+}
+
+.admin-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-dialog-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.admin-dialog-close {
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.admin-dialog-close:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+}
+
+.admin-dialog-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+/* Inside a window the cards need no frame of their own */
+.admin-dialog .admin-card {
+  padding: 0;
+  margin-bottom: 2rem;
+  background: none;
+  border: none;
+}
+
+@media (max-width: 600px) {
+  .admin-dialog-backdrop {
+    padding: 0;
+  }
+
+  .admin-dialog {
+    max-height: 100vh;
+    height: 100%;
+    border: none;
+    border-radius: 0;
+  }
+}
+
+/* ---- Box editor ("Rediger behandlinger") ---- */
+.price-page-head {
+  margin-bottom: 1.5rem;
+}
+
+.back-link {
+  margin-bottom: 0.75rem;
+}
+
+.editor-heading {
+  margin: 0 0 1.25rem;
+  font-size: 1.35rem;
+}
+
+.image-thumb-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--rose-soft);
+}
+
+.image-thumb-empty img {
+  width: 40%;
+  opacity: 0.8;
+}
+
+.focus-control {
+  max-width: 28rem;
+  margin-top: 1.25rem;
+}
+
+.focus-control label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.focus-slider {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.focus-slider input {
+  flex: 1;
+  accent-color: var(--gold);
+}
+
+/* The box in the preview is the real one from the website, but it is not meant to be clicked */
+.cards-preview {
+  max-width: 440px;
+  pointer-events: none;
+}
+
+.cards-preview .service-card {
+  grid-column: auto;
+}
+
+.treatments-section {
+  padding-top: 1.5rem;
+  margin-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.new-treatment {
+  padding: 1rem 1.1rem;
+  margin-top: 1.25rem;
+  background: var(--bg);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+
+.new-treatment h4 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.new-treatment-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.85rem;
+  align-items: center;
+}
+
+.admin-page .new-treatment-fields input[type='text'] {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.admin-page .new-treatment-note {
+  width: 100%;
+  margin-top: 0.6rem;
+}
+
+.new-treatment-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.85rem;
+}
+
+.danger-link {
+  display: block;
+  margin-top: 1.5rem;
+  color: #b3261e;
+}
+
+/* List of boxes */
+.box-list {
+  padding: 0;
+  margin: 1.25rem 0 0;
+  list-style: none;
+}
+
+.box-list-item {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.box-thumb {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.box-thumb-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--rose-soft);
+}
+
+.box-thumb-empty img {
+  width: 40%;
+  opacity: 0.8;
+}
+
+.box-list-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.box-list-text .eyebrow {
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}

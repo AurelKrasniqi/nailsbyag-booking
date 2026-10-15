@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import lombok.RequiredArgsConstructor;
 import no.aurel.backend.addon.dto.AddOnResponse;
 import no.aurel.backend.addon.dto.AddOnSelection;
+import no.aurel.backend.addon.dto.AddOnUpdateRequest;
 import no.aurel.backend.salonservice.SalonService;
 
 @Service
@@ -26,6 +28,23 @@ public class AddOnService {
         return repository.findByActiveTrueOrderBySortOrder().stream()
                 .map(AddOnResponse::from)
                 .toList();
+    }
+
+    // For the admin page: also the extras that are switched off
+    public List<AddOnResponse> findAll() {
+        return repository.findAll(Sort.by("sortOrder")).stream()
+                .map(AddOnResponse::from)
+                .toList();
+    }
+
+    @Transactional
+    public AddOnResponse update(Long id, AddOnUpdateRequest request) {
+        AddOn addOn = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Extra " + id + " not found"));
+        addOn.setPriceNok(request.priceNok());
+        addOn.setDurationMinutes(request.durationMinutes());
+        addOn.setActive(request.active());
+        return AddOnResponse.from(addOn);
     }
 
     /**

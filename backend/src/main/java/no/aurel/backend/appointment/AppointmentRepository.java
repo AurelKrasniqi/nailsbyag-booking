@@ -24,6 +24,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to);
 
+    // Confirmed appointments starting in [from, to) that have not had their reminder yet
+    List<Appointment> findByStatusAndReminderSentAtIsNullAndStartTimeGreaterThanEqualAndStartTimeLessThan(
+            AppointmentStatus status, LocalDateTime from, LocalDateTime to);
+
     Optional<Appointment> findByPublicToken(String publicToken);
 
     List<Appointment> findByStatusAndPaymentExpiresAtBefore(AppointmentStatus status, LocalDateTime time);

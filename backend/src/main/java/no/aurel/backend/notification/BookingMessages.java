@@ -25,6 +25,12 @@ public final class BookingMessages {
                 + " kl. " + a.startTime().format(TIME) + ". Vi ses!";
     }
 
+    // Sent the day before, so it always says "i morgen"
+    public static String reminder(AppointmentResponse a) {
+        return "Påminnelse: du har time hos thebeautyroombyag i morgen kl. " + a.startTime().format(TIME)
+                + " (" + a.startTime().format(DATE) + "). Vi gleder oss til å se deg!";
+    }
+
     public static String adminSubject(AppointmentResponse a) {
         return "Ny booking " + a.startTime().format(DATE) + " kl. " + a.startTime().format(TIME)
                 + " - " + a.customerName();

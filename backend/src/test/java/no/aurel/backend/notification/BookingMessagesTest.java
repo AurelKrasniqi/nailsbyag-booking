@@ -55,4 +55,13 @@ class BookingMessagesTest {
         assertFalse(text.contains("Kommentar"));
         assertTrue(text.contains("betales i salongen"));
     }
+
+    @Test
+    void reminderSaysTomorrowWithTimeAndFitsInOneSms() {
+        String text = BookingMessages.reminder(
+                appointment(null, List.of(), PaymentMethod.AT_SALON, PaymentStatus.UNPAID));
+        assertTrue(text.contains("i morgen kl. 14:00"));
+        assertTrue(text.contains("15.10.2026"));
+        assertTrue(text.length() <= 160, "should fit in one SMS");
+    }
 }

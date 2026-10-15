@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface SalonServiceRepository extends JpaRepository<SalonService, Long> {
 
     List<SalonService> findByActiveTrue();
+
+    boolean existsByGroupId(Long groupId);
 }

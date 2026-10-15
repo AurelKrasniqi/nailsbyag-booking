@@ -1,6 +1,7 @@
 package no.aurel.backend.salonservice.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -12,6 +13,10 @@ public record SalonServiceRequest(
         @PositiveOrZero int priceNok,
         @Size(max = 100) String category,
         @Size(max = 100) String subcategory,
-        boolean active
+        boolean active,
+        @Size(max = 200) String note,
+        boolean priceOnRequest,
+        // The box on the website the treatment is listed in
+        @NotNull Long groupId
 ) {
 }

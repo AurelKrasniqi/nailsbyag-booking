@@ -1,6 +1,5 @@
 import type { SalonService } from '../api/salonServices'
 import type { ServiceCardData } from '../groupServices'
-import { serviceImages } from '../serviceImages'
 
 interface ServiceCardProps {
   card: ServiceCardData
@@ -9,20 +8,20 @@ interface ServiceCardProps {
 }
 
 export function ServiceCard({ card, selectedIds, onToggle }: ServiceCardProps) {
-  const image = serviceImages[card.key]
   const [first] = card.options
   const hasOptions = card.options.length > 1
-  const fromPrice = Math.min(...card.options.map((o) => o.priceNok))
+  const prices = card.options.filter((o) => !o.priceOnRequest).map((o) => o.priceNok)
+  const fromPrice = Math.min(...prices)
 
   return (
     <li className="service-card">
-      <div className={`service-media ${image ? '' : 'placeholder'}`}>
-        {image ? (
+      <div className={`service-media ${card.imageUrl ? '' : 'placeholder'}`}>
+        {card.imageUrl ? (
           <img
-            src={image.src}
+            src={card.imageUrl}
             alt={card.title}
             loading="lazy"
-            style={image.position ? { objectPosition: image.position } : undefined}
+            style={{ objectPosition: `center ${card.imageFocus}%` }}
           />
         ) : (
           <img className="placeholder-logo" src="/images/butterfly-gold.png" alt="" />
@@ -35,29 +34,45 @@ export function ServiceCard({ card, selectedIds, onToggle }: ServiceCardProps) {
             {card.eyebrow && <p className="eyebrow">{card.eyebrow}</p>}
             <h3>{card.title}</h3>
           </div>
-          <strong className="service-price">
-            {hasOptions ? `Fra ${fromPrice}` : first.priceNok} kr
-          </strong>
+          {prices.length > 0 && (
+            <strong className="service-price">
+              {hasOptions ? `Fra ${fromPrice}` : first.priceNok} kr
+            </strong>
+          )}
         </div>
 
         {hasOptions ? (
           <ul className="options">
             {card.options.map((o) => (
               <li key={o.id} className="option">
-                <span className="option-name">{o.name}</span>
+                <span className="option-name">
+                  {o.name}
+                  {o.note && <small className="service-note">{o.note}</small>}
+                </span>
                 <span className="option-duration">ca. {o.durationMinutes} min</span>
-                <strong className="option-price">{o.priceNok} kr</strong>
-                <ToggleButton selected={selectedIds.has(o.id)} onClick={() => onToggle(o)} />
+                {o.priceOnRequest ? (
+                  <span className="option-contact">Kontakt oss for pris</span>
+                ) : (
+                  <>
+                    <strong className="option-price">{o.priceNok} kr</strong>
+                    <ToggleButton selected={selectedIds.has(o.id)} onClick={() => onToggle(o)} />
+                  </>
+                )}
               </li>
             ))}
           </ul>
-        ) : (
+        ) : first ? (
           <>
             {first.description && <p className="service-description">{first.description}</p>}
             <p className="option-duration">ca. {first.durationMinutes} min</p>
-            <ToggleButton selected={selectedIds.has(first.id)} onClick={() => onToggle(first)} />
+            {first.note && <small className="service-note">{first.note}</small>}
+            {first.priceOnRequest ? (
+              <p className="option-contact">Kontakt oss for pris</p>
+            ) : (
+              <ToggleButton selected={selectedIds.has(first.id)} onClick={() => onToggle(first)} />
+            )}
           </>
-        )}
+        ) : null}
       </div>
     </li>
   )

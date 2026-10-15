@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 import lombok.RequiredArgsConstructor;
 import no.aurel.backend.salonservice.dto.SalonServiceRequest;
 import no.aurel.backend.salonservice.dto.SalonServiceResponse;
+import no.aurel.backend.servicegroup.ServiceGroupRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -18,11 +19,12 @@ import no.aurel.backend.salonservice.dto.SalonServiceResponse;
 public class SalonServiceService {
 
     private final SalonServiceRepository repository;
+    private final ServiceGroupRepository groupRepository;
 
     @Transactional(readOnly = true)
     public List<SalonServiceResponse> findAll() {
-        // Sort by id so options inside a category keep the order they were inserted in
-        return repository.findAll(Sort.by("id")).stream()
+        // The admin's order; id as tie-breaker keeps the result stable
+        return repository.findAll(Sort.by("sortOrder", "id")).stream()
                 .map(SalonServiceResponse::from)
                 .toList();
     }
@@ -35,6 +37,8 @@ public class SalonServiceService {
     public SalonServiceResponse create(SalonServiceRequest request) {
         SalonService entity = new SalonService();
         apply(entity, request);
+        // A new treatment goes last
+        entity.setSortOrder(repository.findAll().stream().mapToInt(SalonService::getSortOrder).max().orElse(0) + 1);
         return SalonServiceResponse.from(repository.save(entity));
     }
 
@@ -62,5 +66,9 @@ public class SalonServiceService {
         entity.setDurationMinutes(request.durationMinutes());
         entity.setPriceNok(request.priceNok());
         entity.setActive(request.active());
+        entity.setNote(request.note());
+        entity.setPriceOnRequest(request.priceOnRequest());
+        entity.setGroup(groupRepository.findById(request.groupId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "The box does not exist")));
     }
 }

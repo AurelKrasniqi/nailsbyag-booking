@@ -10,7 +10,10 @@ public record SalonServiceResponse(
         int priceNok,
         String category,
         String subcategory,
-        boolean active
+        boolean active,
+        String note,
+        boolean priceOnRequest,
+        Long groupId
 ) {
 
     public static SalonServiceResponse from(SalonService entity) {
@@ -22,7 +25,10 @@ public record SalonServiceResponse(
                 entity.getPriceNok(),
                 entity.getCategory(),
                 entity.getSubcategory(),
-                entity.isActive()
+                entity.isActive(),
+                entity.getNote(),
+                entity.isPriceOnRequest(),
+                entity.getGroup().getId()
         );
     }
 }

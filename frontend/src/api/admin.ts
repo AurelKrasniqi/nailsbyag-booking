@@ -1,5 +1,10 @@
 // Everything the admin page sends to the backend. Admin endpoints need HTTP Basic credentials on every request.
 // The credentials live in sessionStorage: they survive a page refresh but disappear when the tab is closed.
+import type { About } from './about'
+import type { AddOn } from './addOns'
+import type { SalonService } from './salonServices'
+import type { ServiceGroup } from './serviceGroups'
+
 const STORAGE_KEY = 'adminAuth'
 
 export type DayOfWeek = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY'
@@ -38,6 +43,9 @@ export interface AdminAppointment {
   paymentStatus: 'UNPAID' | 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED'
   status: 'BOOKED' | 'CANCELLED' | 'COMPLETED'
 }
+
+// Mirrors AddOnResponse.java, including whether the extra is switched on
+export type AdminAddOn = AddOn & { active: boolean }
 
 export class UnauthorizedError extends Error {
   constructor() {
@@ -103,6 +111,7 @@ export async function adminFetch(path: string, init: RequestInit = {}): Promise<
     ...init,
     headers: {
       'Content-Type': 'application/json',
+      ...(init.headers as Record<string, string> | undefined),
       ...(memoryAuth ? { Authorization: `Basic ${memoryAuth}` } : {}),
     },
   })
@@ -157,4 +166,90 @@ export async function fetchAppointments(): Promise<AdminAppointment[]> {
 
 export async function cancelAppointment(id: number): Promise<void> {
   await adminFetch(`/api/appointments/${id}/cancel`, { method: 'PUT' })
+}
+
+// Price list. The admin sees inactive treatments and extras too (the public lists hide them).
+export async function fetchAllServices(): Promise<SalonService[]> {
+  return (await adminFetch('/api/services')).json()
+}
+
+// The backend replaces the whole treatment on PUT, so everything is sent, not just the changed fields
+export async function updateService(service: SalonService): Promise<SalonService> {
+  const { id, ...body } = service
+  const response = await adminFetch(`/api/services/${id}`, { method: 'PUT', body: JSON.stringify(body) })
+  return response.json()
+}
+
+export async function saveAboutText(heading: string, body: string): Promise<About> {
+  const response = await adminFetch('/api/about', { method: 'PUT', body: JSON.stringify({ heading, body }) })
+  return response.json()
+}
+
+// The picture itself is the request body (already shrunk by shrinkImage)
+export async function uploadAboutImage(image: Blob): Promise<About> {
+  const response = await adminFetch('/api/about/image', {
+    method: 'PUT',
+    headers: { 'Content-Type': image.type || 'image/jpeg' },
+    body: image,
+  })
+  return response.json()
+}
+
+// Back to the default photo
+export async function deleteAboutImage(): Promise<About> {
+  return (await adminFetch('/api/about/image', { method: 'DELETE' })).json()
+}
+
+export async function createService(service: Omit<SalonService, 'id'>): Promise<SalonService> {
+  const response = await adminFetch('/api/services', { method: 'POST', body: JSON.stringify(service) })
+  return response.json()
+}
+
+// The boxes on the website (title, photo, order). A box is deleted only when it holds no treatments.
+export interface GroupFields {
+  title: string
+  eyebrow: string | null
+  imageFocus: number
+}
+
+export async function createGroup(fields: GroupFields): Promise<ServiceGroup> {
+  return (await adminFetch('/api/service-groups', { method: 'POST', body: JSON.stringify(fields) })).json()
+}
+
+export async function updateGroup(id: number, fields: GroupFields): Promise<ServiceGroup> {
+  return (await adminFetch(`/api/service-groups/${id}`, { method: 'PUT', body: JSON.stringify(fields) })).json()
+}
+
+export async function deleteGroup(id: number): Promise<void> {
+  await adminFetch(`/api/service-groups/${id}`, { method: 'DELETE' })
+}
+
+// ids = every box, in the order they should have on the website
+export async function reorderGroups(ids: number[]): Promise<ServiceGroup[]> {
+  const response = await adminFetch('/api/service-groups/order', { method: 'PUT', body: JSON.stringify({ ids }) })
+  return response.json()
+}
+
+// The picture itself is the request body (already shrunk by shrinkImage)
+export async function uploadGroupImage(id: number, image: Blob): Promise<ServiceGroup> {
+  const response = await adminFetch(`/api/service-groups/${id}/image`, {
+    method: 'PUT',
+    headers: { 'Content-Type': image.type || 'image/jpeg' },
+    body: image,
+  })
+  return response.json()
+}
+
+export async function deleteGroupImage(id: number): Promise<ServiceGroup> {
+  return (await adminFetch(`/api/service-groups/${id}/image`, { method: 'DELETE' })).json()
+}
+
+export async function fetchAllAddOns(): Promise<AdminAddOn[]> {
+  return (await adminFetch('/api/add-ons/all')).json()
+}
+
+export async function updateAddOn(addOn: AdminAddOn): Promise<AdminAddOn> {
+  const body = { priceNok: addOn.priceNok, durationMinutes: addOn.durationMinutes, active: addOn.active }
+  const response = await adminFetch(`/api/add-ons/${addOn.id}`, { method: 'PUT', body: JSON.stringify(body) })
+  return response.json()
 }

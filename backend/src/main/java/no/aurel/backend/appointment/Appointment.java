@@ -87,6 +87,10 @@ public class Appointment {
     @Column(name = "payment_status", nullable = false, length = 20)
     private PaymentStatus paymentStatus;
 
+    // When the reminder text went out (or was deemed unnecessary). Null = still to be sent.
+    @Column(name = "reminder_sent_at")
+    private LocalDateTime reminderSentAt;
+
     // Random id handed to the customer; also the payment reference towards Vipps
     @Column(name = "public_token", nullable = false, unique = true, updatable = false, length = 36)
     private String publicToken;

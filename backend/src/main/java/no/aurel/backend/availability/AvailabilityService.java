@@ -109,7 +109,7 @@ public class AvailabilityService {
         if (distinctIds.isEmpty() || services.size() != distinctIds.size()) {
             throw badRequest("serviceIds must be a non-empty list of existing services");
         }
-        if (services.stream().anyMatch(s -> !s.isActive())) {
+        if (services.stream().anyMatch(s -> !s.isActive() || s.isPriceOnRequest())) {
             throw badRequest("One or more services are not bookable");
         }
         int treatmentMinutes = services.stream().mapToInt(SalonService::getDurationMinutes).sum();

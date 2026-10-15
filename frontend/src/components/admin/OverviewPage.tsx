@@ -83,6 +83,13 @@ export function OverviewPage({ onUnauthorized }: { onUnauthorized: () => void })
         </p>
         <a href="#/admin/inntekt">Se inntekt →</a>
       </section>
+
+      <section className="admin-card stat-card">
+        <p className="stat-label">Om oss</p>
+        <p className="stat-value stat-value-small">Tekst og bilde på forsiden</p>
+        <p className="stat-hint">Endre teksten og bildet i «Om oss»-boksen</p>
+        <a href="#/admin/om-oss">Rediger →</a>
+      </section>
     </div>
   )
 }
