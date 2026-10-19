@@ -1,0 +1,505 @@
+/* ---- "Blokker tid": month calendar + day timeline ---- */
+.block-layout {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 860px) {
+  .block-layout {
+    grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
+  }
+
+  .block-calendar {
+    position: sticky;
+    top: 1rem;
+  }
+}
+
+.block-layout .admin-card {
+  margin-bottom: 0;
+}
+
+/* Scroll target on phones, so the panel is not hidden behind the top of the screen */
+.block-panel-wrap {
+  scroll-margin-top: 0.75rem;
+}
+
+/* ---- Month ---- */
+.month-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.month-title {
+  margin: 0;
+  font-size: 1.5rem;
+  text-transform: capitalize;
+}
+
+.round-button {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--ink);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.12s ease, opacity 0.2s ease;
+}
+
+.round-button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+  border-color: var(--gold);
+}
+
+.round-button:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.round-button:disabled {
+  cursor: default;
+  opacity: 0.3;
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px 0;
+}
+
+.month-weekday {
+  padding-bottom: 0.35rem;
+  font-size: 0.78rem;
+  text-align: center;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.day-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  min-height: 44px;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--ink);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.day-cell:hover {
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+  border-color: var(--gold);
+}
+
+.day-cell:active {
+  transform: scale(0.9);
+}
+
+.day-cell:focus-visible,
+.slot-button:focus-visible,
+.pill-button:focus-visible,
+.round-button:focus-visible,
+.toast-undo:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.day-number {
+  line-height: 1;
+}
+
+.day-today .day-number {
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-underline-offset: 4px;
+}
+
+.day-past {
+  opacity: 0.4;
+}
+
+.day-closed:not(.day-selected) {
+  color: var(--muted);
+}
+
+.day-blocked:not(.day-selected) {
+  color: var(--muted);
+  text-decoration: line-through;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--gold) 20%, transparent) 0 3px,
+    transparent 3px 7px
+  );
+}
+
+.day-selected {
+  font-weight: 500;
+  color: var(--cta-text);
+  background: var(--cta);
+  border-color: var(--cta);
+  transform: scale(1.04);
+}
+
+.day-selected:hover {
+  background: var(--cta-hover);
+  border-color: var(--cta-hover);
+}
+
+.day-marks {
+  display: flex;
+  gap: 3px;
+  height: 5px;
+}
+
+.mark {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.mark-booking {
+  background: var(--rose);
+}
+
+.mark-block {
+  background: var(--gold);
+}
+
+.day-selected .mark-booking,
+.day-selected .mark-block {
+  background: var(--cta-text);
+}
+
+.calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  padding: 0;
+  margin: 1rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  list-style: none;
+}
+
+.calendar-legend li {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.legend-blocked {
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--gold) 45%, transparent) 0 3px,
+    transparent 3px 7px
+  );
+  border: 1px solid var(--border);
+}
+
+/* ---- Day panel ---- */
+.block-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.block-panel-head h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  text-transform: capitalize;
+}
+
+.pill-button {
+  padding: 0.5rem 1.1rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--ink);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.12s ease, opacity 0.2s ease;
+}
+
+.pill-button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+  border-color: var(--gold);
+}
+
+.pill-button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.pill-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.block-hint {
+  margin-bottom: 0.75rem;
+}
+
+.block-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
+  border-radius: 10px;
+}
+
+.slot-list {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.slot {
+  display: grid;
+  grid-template-columns: 3.4rem 1fr;
+  align-items: stretch;
+  min-height: 44px;
+}
+
+.slot-time {
+  padding-top: 0.7rem;
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.slot-time-half {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+.slot-body {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+.slot-continued .slot-body {
+  border-top-color: transparent;
+}
+
+.slot-label {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.slot-sub {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.slot-button {
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  transition: background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.slot-button:hover {
+  background: color-mix(in srgb, var(--gold) 12%, transparent);
+}
+
+.slot-button:active {
+  background: color-mix(in srgb, var(--gold) 22%, transparent);
+}
+
+.slot-closed .slot-body,
+.slot-past .slot-body {
+  color: var(--muted);
+  background: color-mix(in srgb, var(--border) 35%, transparent);
+}
+
+.slot-past .slot-body {
+  opacity: 0.6;
+}
+
+.slot-booked .slot-body {
+  background: var(--rose-soft);
+  border-left: 3px solid var(--rose);
+}
+
+.slot-blocked .slot-body {
+  border-left: 3px solid var(--gold);
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--gold) 16%, transparent) 0 6px,
+    transparent 6px 14px
+  );
+}
+
+/* A picked range reads as one continuous gold block */
+.slot-selected .slot-body,
+.slot-selected .slot-button {
+  background: color-mix(in srgb, var(--gold) 24%, transparent);
+  border-left: 3px solid var(--gold);
+}
+
+.slot-selected-first .slot-body {
+  border-radius: 10px 10px 0 0;
+}
+
+.slot-selected-last .slot-body {
+  border-radius: 0 0 10px 10px;
+}
+
+.slot-selected-first.slot-selected-last .slot-body {
+  border-radius: 10px;
+}
+
+.slot-selected:not(.slot-selected-first) .slot-body {
+  border-top-color: transparent;
+}
+
+.slot-selected .slot-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* ---- Confirm bar: stays in reach at the bottom of the screen ---- */
+.block-confirm {
+  position: sticky;
+  bottom: 0.75rem;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  margin-top: 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  animation: rise 0.22s ease both;
+}
+
+.block-error {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.block-confirm-buttons {
+  display: inline-flex;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.block-confirm .admin-button {
+  border-radius: 999px;
+  transition: background 0.2s ease, transform 0.12s ease;
+}
+
+.block-confirm .admin-button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* ---- Toast ("Blokkert 14:00–16:00 · Angre") ---- */
+.toast {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 0.8rem 1.1rem;
+  color: var(--bg);
+  background: var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  transform: translateX(-50%);
+  animation: toast-in 0.25s ease both;
+}
+
+.toast-undo {
+  padding: 0.15rem 0.2rem;
+  font: inherit;
+  font-weight: 500;
+  color: var(--gold);
+  cursor: pointer;
+  background: none;
+  border: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .day-cell,
+  .round-button,
+  .pill-button,
+  .slot-button,
+  .block-confirm,
+  .block-confirm .admin-button,
+  .toast {
+    transition: none;
+    animation: none;
+  }
+
+  .day-selected {
+    transform: none;
+  }
+}
