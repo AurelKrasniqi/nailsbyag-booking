@@ -6,6 +6,7 @@ import { BlockTimePage } from './components/admin/BlockTimePage'
 import { ExceptionsEditor } from './components/admin/ExceptionsEditor'
 import { IncomePage } from './components/admin/IncomePage'
 import { LoginForm } from './components/admin/LoginForm'
+import { MessagesPage } from './components/admin/MessagesPage'
 import { OpeningHoursEditor } from './components/admin/OpeningHoursEditor'
 import { OverviewPage } from './components/admin/OverviewPage'
 import { PriceListEditor } from './components/admin/PriceListEditor'
@@ -13,15 +14,16 @@ import { UpcomingAppointments } from './components/admin/UpcomingAppointments'
 import './AdminPage.css'
 
 // The dashboard has one page per topic. The page is the part of the address after #/admin
-// (/#/admin = overview, /#/admin/timer, /#/admin/blokker, /#/admin/kalender, /#/admin/priser, /#/admin/om-oss, /#/admin/inntekt).
-type PageKey = 'oversikt' | 'timer' | 'blokker' | 'kalender' | 'priser' | 'om-oss' | 'inntekt'
+// (/#/admin = overview, /#/admin/timer, /#/admin/kalender, /#/admin/apningstider, /#/admin/priser, /#/admin/meldinger, /#/admin/om-oss, /#/admin/inntekt).
+type PageKey = 'oversikt' | 'timer' | 'kalender' | 'apningstider' | 'priser' | 'meldinger' | 'om-oss' | 'inntekt'
 
 const PAGES: { key: PageKey; label: string; href: string; title: string }[] = [
   { key: 'oversikt', label: 'Oversikt', href: '#/admin', title: 'Oversikt' },
   { key: 'timer', label: 'Timer', href: '#/admin/timer', title: 'Kommende timer' },
-  { key: 'blokker', label: 'Blokker tid', href: '#/admin/blokker', title: 'Blokker tid' },
-  { key: 'kalender', label: 'Kalender', href: '#/admin/kalender', title: 'Åpningstider og fridager' },
+  { key: 'kalender', label: 'Kalender', href: '#/admin/kalender', title: 'Kalender' },
+  { key: 'apningstider', label: 'Åpningstider', href: '#/admin/apningstider', title: 'Åpningstider' },
   { key: 'priser', label: 'Priser', href: '#/admin/priser', title: 'Priser og behandlinger' },
+  { key: 'meldinger', label: 'Meldinger', href: '#/admin/meldinger', title: 'Meldinger til kunder' },
   { key: 'om-oss', label: 'Om oss', href: '#/admin/om-oss', title: 'Om oss' },
   { key: 'inntekt', label: 'Inntekt', href: '#/admin/inntekt', title: 'Inntekt' },
 ]
@@ -97,15 +99,18 @@ export function AdminPage({ hash }: { hash: string }) {
             <h1 className="admin-page-title">{current.title}</h1>
             {error && <p className="error">{error}</p>}
 
-            {page === 'oversikt' && <OverviewPage onUnauthorized={handleUnauthorized} />}
+            {page === 'oversikt' && employeeId !== null && (
+              <OverviewPage employeeId={employeeId} onUnauthorized={handleUnauthorized} />
+            )}
             {page === 'timer' && <UpcomingAppointments onUnauthorized={handleUnauthorized} />}
             {page === 'priser' && <PriceListEditor onUnauthorized={handleUnauthorized} />}
+            {page === 'meldinger' && <MessagesPage onUnauthorized={handleUnauthorized} />}
             {page === 'om-oss' && <AboutSettings onUnauthorized={handleUnauthorized} />}
             {page === 'inntekt' && <IncomePage onUnauthorized={handleUnauthorized} />}
-            {page === 'blokker' && employeeId !== null && (
+            {page === 'kalender' && employeeId !== null && (
               <BlockTimePage employeeId={employeeId} onUnauthorized={handleUnauthorized} />
             )}
-            {page === 'kalender' && employeeId !== null && (
+            {page === 'apningstider' && employeeId !== null && (
               <div className="admin-two-columns">
                 <OpeningHoursEditor employeeId={employeeId} onUnauthorized={handleUnauthorized} />
                 <ExceptionsEditor employeeId={employeeId} onUnauthorized={handleUnauthorized} />

@@ -1,0 +1,99 @@
+/* ---- "Meldinger": editing the texts sent to customers ---- */
+.message-card {
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.message-card:first-of-type {
+  border-top: none;
+}
+
+.message-title {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+.message-description {
+  margin-bottom: 0.6rem;
+}
+
+.admin-page .message-textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+.placeholder-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.6rem 0 0.25rem;
+}
+
+.placeholder-caption {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.placeholder-chip {
+  padding: 0.4rem 0.85rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--ink);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.placeholder-chip:hover {
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+  border-color: var(--gold);
+}
+
+.placeholder-chip:active {
+  transform: scale(0.95);
+}
+
+.placeholder-chip:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.message-warning {
+  margin: 0.4rem 0 0;
+  font-size: 0.88rem;
+}
+
+.message-preview-wrap {
+  margin: 1rem 0 0.75rem;
+}
+
+.message-preview-label {
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Looks like a received text message */
+.sms-bubble {
+  max-width: 34rem;
+  padding: 0.8rem 1rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  background: var(--rose-soft);
+  border-radius: 18px 18px 18px 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .placeholder-chip {
+    transition: none;
+  }
+}

@@ -9,26 +9,14 @@ import no.aurel.backend.appointment.PaymentMethod;
 import no.aurel.backend.appointment.PaymentStatus;
 import no.aurel.backend.appointment.dto.AppointmentResponse;
 
-// The wording of the two text messages. Pure functions of the appointment, so they are easy to unit test.
-// No emoji on purpose: one emoji switches an SMS to a encoding with 70 instead of 160 characters per message.
+// The wording of the e-mail to Agneta. Pure functions of the appointment, so they are easy to unit test.
+// The texts to the customer (confirmation and reminder) are editable by Agneta, see MessageTemplateService.
 public final class BookingMessages {
 
     private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.of("nb", "NO"));
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("HH:mm", Locale.of("nb", "NO"));
 
     private BookingMessages() {
-    }
-
-    public static String forCustomer(AppointmentResponse a) {
-        return "Hei! Takk for at du booket time hos oss på thebeautyroombyag. "
-                + "Dette er en bekreftelse på bookingen din " + a.startTime().format(DATE)
-                + " kl. " + a.startTime().format(TIME) + ". Vi ses!";
-    }
-
-    // Sent the day before, so it always says "i morgen"
-    public static String reminder(AppointmentResponse a) {
-        return "Påminnelse: du har time hos thebeautyroombyag i morgen kl. " + a.startTime().format(TIME)
-                + " (" + a.startTime().format(DATE) + "). Vi gleder oss til å se deg!";
     }
 
     public static String adminSubject(AppointmentResponse a) {

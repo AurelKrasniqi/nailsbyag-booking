@@ -1,0 +1,160 @@
+/* ---- Overview dashboard ---- */
+.overview-welcome {
+  margin-bottom: 1.25rem;
+}
+
+.overview-welcome h2 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.overview-date {
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.overview .stat-grid {
+  margin-bottom: 0;
+}
+
+.overview .admin-card {
+  margin-bottom: 1.5rem;
+}
+
+.overview-columns {
+  display: grid;
+  gap: 0 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  align-items: start;
+}
+
+.overview-card-head {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.overview .overview-card-head h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.overview-card-head a {
+  font-size: 0.9rem;
+  color: var(--gold);
+  text-decoration: none;
+}
+
+.overview-card-head a:hover {
+  text-decoration: underline;
+}
+
+.overview-list li {
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.overview-list li:first-child {
+  border-top: none;
+}
+
+.overview-when {
+  display: flex;
+  flex: 0 0 7.5rem;
+  flex-direction: column;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+}
+
+.overview-when strong {
+  text-transform: capitalize;
+}
+
+.overview-when span {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.overview-what {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.overview-what .admin-muted {
+  font-size: 0.85rem;
+}
+
+.overview-paid {
+  padding: 0.1rem 0.6rem;
+  font-size: 0.75rem;
+  color: var(--gold);
+  white-space: nowrap;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+}
+
+.overview-more {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+}
+
+.overview-section-title {
+  margin: 0.5rem 0 0.75rem;
+  font-size: 1.35rem;
+}
+
+.shortcut-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+}
+
+.shortcut-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 1rem 1.1rem;
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.shortcut-tile strong {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.shortcut-tile span {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.shortcut-tile:hover {
+  background: color-mix(in srgb, var(--gold) 10%, var(--card-bg));
+  border-color: var(--gold);
+}
+
+.shortcut-tile:active {
+  transform: scale(0.97);
+}
+
+.shortcut-tile:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shortcut-tile {
+    transition: none;
+  }
+}

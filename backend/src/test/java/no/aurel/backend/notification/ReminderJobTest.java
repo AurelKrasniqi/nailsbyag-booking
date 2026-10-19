@@ -34,6 +34,9 @@ class ReminderJobTest {
     @Mock
     private SmsSender smsSender;
 
+    @Mock
+    private MessageTemplateService messageTemplates;
+
     private static AppointmentResponse appointment(String phone) {
         return new AppointmentResponse(7L, 2L, "Kari Nordmann", phone, 3L, "Agneta",
                 List.of(4L), List.of("Gellack"), List.of(), 750,
@@ -43,16 +46,17 @@ class ReminderJobTest {
 
     private ReminderJob jobAt(int hour) {
         Clock clock = Clock.fixed(LocalDateTime.of(2026, 10, 15, hour, 0).atZone(OSLO).toInstant(), OSLO);
-        return new ReminderJob(appointmentService, smsSender, clock);
+        return new ReminderJob(appointmentService, smsSender, messageTemplates, clock);
     }
 
     @Test
     void textsCustomerAndMarksAppointmentAsReminded() {
         when(appointmentService.findDueForReminder()).thenReturn(List.of(appointment("912 34 567")));
+        when(messageTemplates.reminderFor(appointment("912 34 567"))).thenReturn("Din tekst fra Agneta");
 
         jobAt(12).sendReminders();
 
-        verify(smsSender).send("+4791234567", BookingMessages.reminder(appointment("912 34 567")));
+        verify(smsSender).send("+4791234567", "Din tekst fra Agneta");
         verify(appointmentService).markReminderSent(7L);
     }
 
@@ -66,6 +70,7 @@ class ReminderJobTest {
     @Test
     void failedTextIsNotMarkedSoItIsRetried() {
         when(appointmentService.findDueForReminder()).thenReturn(List.of(appointment("912 34 567")));
+        when(messageTemplates.reminderFor(appointment("912 34 567"))).thenReturn("tekst");
         doThrow(new SmsException("Twilio is down", null)).when(smsSender).send(anyString(), anyString());
 
         jobAt(12).sendReminders();

@@ -28,6 +28,7 @@ public class ReminderJob {
 
     private final AppointmentService appointmentService;
     private final SmsSender smsSender;
+    private final MessageTemplateService messageTemplates;
     private final Clock clock;
 
     @Scheduled(fixedDelay = 600_000, initialDelay = 60_000)
@@ -49,7 +50,7 @@ public class ReminderJob {
     private void remind(AppointmentResponse appointment) {
         String phone = PhoneNumber.toE164(appointment.customerPhone());
         if (phone != null) {
-            smsSender.send(phone, BookingMessages.reminder(appointment));
+            smsSender.send(phone, messageTemplates.reminderFor(appointment));
         } else {
             log.warn("No reminder for appointment {}: '{}' is not a usable phone number",
                     appointment.id(), appointment.customerPhone());

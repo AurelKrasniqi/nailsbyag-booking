@@ -95,7 +95,7 @@ export function BlockDayPanel({ date, slots, isPastDay, wholeDayBlock, saving, o
         <p className="admin-hint block-hint">Hele dagen kan ikke blokkeres siden det finnes timer. Blokker ledige tidsrom under.</p>
       )}
 
-      {slots.length === 0 && <p className="admin-muted">Ingen åpningstider denne dagen. Sett dem opp under Kalender.</p>}
+      {slots.length === 0 && <p className="admin-muted">Ingen åpningstider denne dagen. Sett dem opp under Åpningstider.</p>}
 
       {!wholeDayBlock && slots.length > 0 && !isPastDay && hasFreeSlots && !selection && (
         <p className="admin-hint block-hint">Trykk på starttidspunktet og så sluttidspunktet for tiden du vil blokkere.</p>

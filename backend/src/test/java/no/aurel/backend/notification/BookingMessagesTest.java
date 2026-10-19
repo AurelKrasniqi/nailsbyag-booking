@@ -26,15 +26,6 @@ class BookingMessagesTest {
     }
 
     @Test
-    void customerMessageHasDateAndTime() {
-        String text = BookingMessages.forCustomer(
-                appointment(null, List.of(), PaymentMethod.AT_SALON, PaymentStatus.UNPAID));
-        assertEquals("Hei! Takk for at du booket time hos oss på thebeautyroombyag. "
-                + "Dette er en bekreftelse på bookingen din 15.10.2026 kl. 14:00. Vi ses!", text);
-        assertTrue(text.length() <= 160, "should fit in one SMS");
-    }
-
-    @Test
     void adminMessageHasEverythingAboutTheCustomer() {
         String text = BookingMessages.forAdmin(appointment("Lang og mandel",
                 List.of(new AddOnLine("Fransk", 1, 100), new AddOnLine("Nailart", 4, 200)),
@@ -54,14 +45,5 @@ class BookingMessagesTest {
         assertFalse(text.contains("Tillegg"));
         assertFalse(text.contains("Kommentar"));
         assertTrue(text.contains("betales i salongen"));
-    }
-
-    @Test
-    void reminderSaysTomorrowWithTimeAndFitsInOneSms() {
-        String text = BookingMessages.reminder(
-                appointment(null, List.of(), PaymentMethod.AT_SALON, PaymentStatus.UNPAID));
-        assertTrue(text.contains("i morgen kl. 14:00"));
-        assertTrue(text.contains("15.10.2026"));
-        assertTrue(text.length() <= 160, "should fit in one SMS");
     }
 }

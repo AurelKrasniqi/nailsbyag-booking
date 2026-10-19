@@ -270,3 +270,24 @@ export async function updateAddOn(id: number, input: AddOnInput): Promise<AdminA
 export async function deleteAddOn(id: number): Promise<void> {
   await adminFetch(`/api/add-ons/${id}`, { method: 'DELETE' })
 }
+
+// Mirrors MessageTemplatesResponse.java: the texts sent to customers, plus the defaults for "Tilbakestill"
+export interface MessageTemplates {
+  confirmationText: string
+  reminderText: string
+  defaultConfirmationText: string
+  defaultReminderText: string
+  placeholders: string[]
+}
+
+export async function fetchMessageTemplates(): Promise<MessageTemplates> {
+  return (await adminFetch('/api/admin/message-templates')).json()
+}
+
+export async function saveMessageTemplates(confirmationText: string, reminderText: string): Promise<MessageTemplates> {
+  const response = await adminFetch('/api/admin/message-templates', {
+    method: 'PUT',
+    body: JSON.stringify({ confirmationText, reminderText }),
+  })
+  return response.json()
+}

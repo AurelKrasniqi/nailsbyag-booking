@@ -24,6 +24,7 @@ public class BookingNotificationListener {
 
     private final SmsSender smsSender;
     private final EmailSender emailSender;
+    private final MessageTemplateService messageTemplates;
 
     // Agneta's e-mail address for the "new booking" mail. Empty = she gets no e-mail.
     @Value("${app.email.admin-address:}")
@@ -33,7 +34,7 @@ public class BookingNotificationListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onBookingConfirmed(BookingConfirmedEvent event) {
         AppointmentResponse appointment = event.appointment();
-        send(appointment.customerPhone(), BookingMessages.forCustomer(appointment));
+        send(appointment.customerPhone(), messageTemplates.confirmationFor(appointment));
         mailAdmin(appointment);
     }
 
