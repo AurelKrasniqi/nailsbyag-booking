@@ -838,6 +838,16 @@
   cursor: pointer;
 }
 
+.cart-dismiss {
+  padding: 0 0.25rem;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
 .modal-summary {
   margin: 0 0 1rem;
   font-size: 0.9rem;

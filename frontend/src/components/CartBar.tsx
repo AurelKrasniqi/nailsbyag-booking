@@ -78,6 +78,9 @@ export function CartBar({ items, extras, quantities, onQuantityChange, onRemove,
         <button type="button" className="button" onClick={() => setBooking(true)}>
           Velg tid
         </button>
+        <button type="button" className="cart-dismiss" aria-label="Fjern valgte behandlinger" onClick={onClear}>
+          ×
+        </button>
       </div>
 
       {booking && (
