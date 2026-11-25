@@ -16,7 +16,7 @@ import no.aurel.backend.addon.dto.AddOnResponse;
 import no.aurel.backend.addon.dto.AddOnSelection;
 import no.aurel.backend.addon.dto.AddOnUpdateRequest;
 import no.aurel.backend.salonservice.SalonService;
-import no.aurel.backend.servicegroup.ServiceGroupRepository;
+import no.aurel.backend.salonservice.SalonServiceRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +24,7 @@ import no.aurel.backend.servicegroup.ServiceGroupRepository;
 public class AddOnService {
 
     private final AddOnRepository repository;
-    private final ServiceGroupRepository groupRepository;
+    private final SalonServiceRepository serviceRepository;
 
     public List<AddOnResponse> findActive() {
         return repository.findByActiveTrueOrderBySortOrder().stream()
@@ -71,8 +71,8 @@ public class AddOnService {
     }
 
     private void apply(AddOn addOn, AddOnUpdateRequest request) {
-        if (groupRepository.countByIdIn(request.groupIds()) != request.groupIds().size()) {
-            throw badRequest("One or more boxes do not exist");
+        if (serviceRepository.countByIdIn(request.serviceIds()) != request.serviceIds().size()) {
+            throw badRequest("One or more treatments do not exist");
         }
         String unit = request.unitLabel() == null || request.unitLabel().isBlank() ? null : request.unitLabel().trim();
         addOn.setName(request.name().trim());
@@ -80,7 +80,7 @@ public class AddOnService {
         addOn.setPriceNok(request.priceNok());
         addOn.setDurationMinutes(request.durationMinutes());
         addOn.setMaxQuantity(request.maxQuantity());
-        addOn.setGroupIds(new HashSet<>(request.groupIds()));
+        addOn.setServiceIds(new HashSet<>(request.serviceIds()));
         addOn.setActive(request.active());
     }
 
@@ -127,10 +127,9 @@ public class AddOnService {
         }
     }
 
-    // An extra fits when at least one chosen treatment is in one of the boxes the extra is meant for
+    // An extra fits when at least one chosen treatment is one the extra is meant for
     static boolean fits(AddOn addOn, List<SalonService> services) {
-        return services.stream().anyMatch(service ->
-                service.getGroup() != null && addOn.getGroupIds().contains(service.getGroup().getId()));
+        return services.stream().anyMatch(service -> addOn.getServiceIds().contains(service.getId()));
     }
 
     private ResponseStatusException badRequest(String message) {

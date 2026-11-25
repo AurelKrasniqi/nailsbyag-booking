@@ -25,7 +25,7 @@ public final class IncomeCalculator {
      * Price 1000 with 25 % VAT is 800 + 200 VAT, so the VAT is price x 25 / 125, not price x 25 / 100.
      * Rounded to the nearest øre (half up).
      */
-    static long vatIncludedIn(long grossOre, int vatRatePercent) {
+    public static long vatIncludedIn(long grossOre, int vatRatePercent) {
         long divisor = 100L + vatRatePercent;
         return (grossOre * vatRatePercent + divisor / 2) / divisor;
     }

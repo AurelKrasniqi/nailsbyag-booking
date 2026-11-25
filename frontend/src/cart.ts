@@ -23,10 +23,10 @@ export function totalDurationMinutes(items: SalonService[], choices: AddOnChoice
   )
 }
 
-// An extra fits when a chosen treatment is in one of the boxes the extra is meant for.
+// An extra fits when a chosen treatment is one the extra is meant for.
 // Same rule as the backend, which checks it again on booking.
 export function eligibleAddOns(all: AddOn[], items: SalonService[]): AddOn[] {
-  return all.filter((a) => items.some((s) => a.groupIds.includes(s.groupId)))
+  return all.filter((a) => items.some((s) => a.serviceIds.includes(s.id)))
 }
 
 // The quantities live in one place, keyed by extra id. Only extras that still fit the cart and have a quantity count,

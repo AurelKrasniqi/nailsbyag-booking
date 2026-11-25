@@ -35,11 +35,11 @@ public class AddOn {
     @Column(name = "unit_label", length = 30)
     private String unitLabel;
 
-    // The boxes (service groups) whose treatments this extra can be added to
+    // The treatments (salon_service ids) this extra can be added to
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "add_on_group", joinColumns = @JoinColumn(name = "add_on_id"))
-    @Column(name = "group_id")
-    private Set<Long> groupIds = new HashSet<>();
+    @CollectionTable(name = "add_on_service", joinColumns = @JoinColumn(name = "add_on_id"))
+    @Column(name = "service_id")
+    private Set<Long> serviceIds = new HashSet<>();
 
     // Price and duration for ONE unit (one nail, or the extra as a whole)
     @Column(name = "price_nok", nullable = false)

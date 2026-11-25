@@ -38,6 +38,8 @@ public class SecurityConfig {
                                 "/api/add-ons", "/api/payment-options",
                                 // The "Om oss" box on the public site, and its photo
                                 "/api/about", "/api/about/image",
+                                // The sales terms page
+                                "/api/terms",
                                 // The boxes with the treatments, and their photos
                                 "/api/service-groups", "/api/service-groups/*/image",
                                 "/api/availability").permitAll()

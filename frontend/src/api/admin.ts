@@ -1,6 +1,7 @@
 // Everything the admin page sends to the backend. Admin endpoints need HTTP Basic credentials on every request.
 // The credentials live in sessionStorage: they survive a page refresh but disappear when the tab is closed.
 import type { About } from './about'
+import type { TermsSection } from './terms'
 import type { AddOn } from './addOns'
 import type { SalonService } from './salonServices'
 import type { ServiceGroup } from './serviceGroups'
@@ -180,6 +181,11 @@ export async function updateService(service: SalonService): Promise<SalonService
   return response.json()
 }
 
+// The whole terms page is replaced in one go; the order of the list is the order on the page
+export async function saveTerms(sections: TermsSection[]): Promise<TermsSection[]> {
+  return (await adminFetch('/api/terms', { method: 'PUT', body: JSON.stringify(sections) })).json()
+}
+
 export async function saveAboutText(heading: string, body: string): Promise<About> {
   const response = await adminFetch('/api/about', { method: 'PUT', body: JSON.stringify({ heading, body }) })
   return response.json()
@@ -255,7 +261,7 @@ export interface AddOnInput {
   priceNok: number
   durationMinutes: number
   maxQuantity: number
-  groupIds: number[]
+  serviceIds: number[]
   active: boolean
 }
 
@@ -290,4 +296,11 @@ export async function saveMessageTemplates(confirmationText: string, reminderTex
     body: JSON.stringify({ confirmationText, reminderText }),
   })
   return response.json()
+}
+
+// Asks the backend for the accounting PDF and returns the file. from and to are "YYYY-MM-DD", both included.
+export async function fetchAccountingPdf(from: string, to: string, newestFirst: boolean): Promise<Blob> {
+  const query = new URLSearchParams({ from, to, newestFirst: String(newestFirst) })
+  const response = await adminFetch(`/api/admin/accounting/statement.pdf?${query}`)
+  return response.blob()
 }

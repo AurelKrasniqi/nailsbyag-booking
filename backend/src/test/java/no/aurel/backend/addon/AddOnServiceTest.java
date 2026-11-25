@@ -16,7 +16,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import no.aurel.backend.addon.dto.AddOnSelection;
 import no.aurel.backend.salonservice.SalonService;
-import no.aurel.backend.servicegroup.ServiceGroup;
 
 @ExtendWith(MockitoExtension.class)
 class AddOnServiceTest {
@@ -27,22 +26,20 @@ class AddOnServiceTest {
     @InjectMocks
     private AddOnService addOnService;
 
-    // Boxes: 1 = Nytt sett, 2 = Påfyll, 3 = Pedikyr
+    // Treatments: 1 = Nytt sett, 2 = Påfyll, 3 = Pedikyr
     private static final long NEW_SET = 1, REFILL = 2, PEDICURE = 3;
 
-    private static SalonService treatment(long groupId) {
-        ServiceGroup group = new ServiceGroup();
-        group.setId(groupId);
+    private static SalonService treatment(long id) {
         SalonService service = new SalonService();
-        service.setGroup(group);
+        service.setId(id);
         return service;
     }
 
-    private static AddOn addOn(long id, Set<Long> groups, int price, int minutes, int max) {
+    private static AddOn addOn(long id, Set<Long> services, int price, int minutes, int max) {
         AddOn addOn = new AddOn();
         addOn.setId(id);
         addOn.setName("Extra " + id);
-        addOn.setGroupIds(groups);
+        addOn.setServiceIds(services);
         addOn.setPriceNok(price);
         addOn.setDurationMinutes(minutes);
         addOn.setMaxQuantity(max);

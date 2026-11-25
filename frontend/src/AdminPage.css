@@ -594,6 +594,7 @@
 
 .admin-page input[type='text'],
 .admin-page input[type='number'],
+.admin-page input[type='date'],
 .admin-page textarea {
   padding: 0.7rem 0.85rem;
   font: inherit;
@@ -607,6 +608,7 @@
 }
 
 .admin-page .editor-field input[type='text'],
+.admin-page .editor-field input[type='date'],
 .admin-page .editor-field textarea {
   width: 100%;
 }
@@ -617,6 +619,7 @@
 
 .admin-page input[type='text']:focus,
 .admin-page input[type='number']:focus,
+.admin-page input[type='date']:focus,
 .admin-page textarea:focus {
   outline: none;
   border-color: var(--gold);
@@ -992,4 +995,61 @@
 .addon-actions .danger-link {
   display: inline;
   margin-top: 0;
+}
+
+.addon-box {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0.25rem 0 0;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--admin-border, rgba(255, 255, 255, 0.15));
+  border-radius: 6px;
+}
+
+.addon-box legend {
+  padding: 0 0.4rem;
+  font-weight: 600;
+}
+
+.terms-block {
+  padding: 1rem 0;
+  border-top: 1px solid var(--admin-border, rgba(255, 255, 255, 0.15));
+}
+
+.terms-block-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* ---- Regnskap ---- */
+.accounting-dates {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0 1.5rem;
+}
+
+.accounting-dates .field-hint {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+
+.accounting-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.accounting-sort {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
 }

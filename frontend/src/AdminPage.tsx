@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { isLoggedIn, logout } from './api/admin'
 import { fetchEmployees } from './api/availability'
 import { AboutSettings } from './components/admin/AboutSettings'
+import { AccountingPage } from './components/admin/AccountingPage'
 import { BlockTimePage } from './components/admin/BlockTimePage'
 import { ExceptionsEditor } from './components/admin/ExceptionsEditor'
 import { IncomePage } from './components/admin/IncomePage'
@@ -10,12 +11,13 @@ import { MessagesPage } from './components/admin/MessagesPage'
 import { OpeningHoursEditor } from './components/admin/OpeningHoursEditor'
 import { OverviewPage } from './components/admin/OverviewPage'
 import { PriceListEditor } from './components/admin/PriceListEditor'
+import { TermsEditor } from './components/admin/TermsEditor'
 import { UpcomingAppointments } from './components/admin/UpcomingAppointments'
 import './AdminPage.css'
 
 // The dashboard has one page per topic. The page is the part of the address after #/admin
-// (/#/admin = overview, /#/admin/timer, /#/admin/kalender, /#/admin/apningstider, /#/admin/priser, /#/admin/meldinger, /#/admin/om-oss, /#/admin/inntekt).
-type PageKey = 'oversikt' | 'timer' | 'kalender' | 'apningstider' | 'priser' | 'meldinger' | 'om-oss' | 'inntekt'
+// (/#/admin = overview, /#/admin/timer, /#/admin/kalender, /#/admin/apningstider, /#/admin/priser, /#/admin/meldinger, /#/admin/om-oss, /#/admin/vilkar, /#/admin/inntekt, /#/admin/regnskap).
+type PageKey = 'oversikt' | 'timer' | 'kalender' | 'apningstider' | 'priser' | 'meldinger' | 'om-oss' | 'vilkar' | 'inntekt' | 'regnskap'
 
 const PAGES: { key: PageKey; label: string; href: string; title: string }[] = [
   { key: 'oversikt', label: 'Oversikt', href: '#/admin', title: 'Oversikt' },
@@ -25,7 +27,9 @@ const PAGES: { key: PageKey; label: string; href: string; title: string }[] = [
   { key: 'priser', label: 'Priser', href: '#/admin/priser', title: 'Priser og behandlinger' },
   { key: 'meldinger', label: 'Meldinger', href: '#/admin/meldinger', title: 'Meldinger til kunder' },
   { key: 'om-oss', label: 'Om oss', href: '#/admin/om-oss', title: 'Om oss' },
+  { key: 'vilkar', label: 'Vilkår', href: '#/admin/vilkar', title: 'Salgsvilkår' },
   { key: 'inntekt', label: 'Inntekt', href: '#/admin/inntekt', title: 'Inntekt' },
+  { key: 'regnskap', label: 'Regnskap', href: '#/admin/regnskap', title: 'Regnskap' },
 ]
 
 function pageFromHash(hash: string): PageKey {
@@ -106,6 +110,8 @@ export function AdminPage({ hash }: { hash: string }) {
             {page === 'priser' && <PriceListEditor onUnauthorized={handleUnauthorized} />}
             {page === 'meldinger' && <MessagesPage onUnauthorized={handleUnauthorized} />}
             {page === 'om-oss' && <AboutSettings onUnauthorized={handleUnauthorized} />}
+            {page === 'vilkar' && <TermsEditor onUnauthorized={handleUnauthorized} />}
+            {page === 'regnskap' && <AccountingPage onUnauthorized={handleUnauthorized} />}
             {page === 'inntekt' && <IncomePage onUnauthorized={handleUnauthorized} />}
             {page === 'kalender' && employeeId !== null && (
               <BlockTimePage employeeId={employeeId} onUnauthorized={handleUnauthorized} />

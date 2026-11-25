@@ -9,4 +9,6 @@ public interface SalonServiceRepository extends JpaRepository<SalonService, Long
     List<SalonService> findByActiveTrue();
 
     boolean existsByGroupId(Long groupId);
+
+    long countByIdIn(java.util.Collection<Long> ids);
 }

@@ -165,7 +165,7 @@ export function PriceListEditor({ onUnauthorized }: Props) {
         </section>
       ))}
 
-      <AddOnsEditor groups={groups} addOns={addOns} setAddOns={setAddOns} onUnauthorized={onUnauthorized} />
+      <AddOnsEditor groups={groups} services={services} addOns={addOns} setAddOns={setAddOns} onUnauthorized={onUnauthorized} />
 
       {editingBoxes && (
         <AdminDialog title="Rediger behandlinger" hasUnsavedChanges={unsaved} onClose={closeBoxEditor}>

@@ -1,4 +1,6 @@
-import { BUSINESS, FREE_CANCELLATION_HOURS } from './business'
+import { useEffect, useState } from 'react'
+import { fetchTerms, type TermsSection } from './api/terms'
+import { BUSINESS } from './business'
 import './LegalPages.css'
 
 // DRAFTS. These texts must be read and approved by Agneta (and ideally checked against Forbrukertilsynet's guidance
@@ -22,59 +24,34 @@ function LegalLayout({ title, children }: { title: string; children: React.React
   )
 }
 
+// The sales terms are written by the admin (Admin → Vilkår) and kept in the database. Paragraphs are separated by a blank line.
 export function TermsPage() {
+  const [sections, setSections] = useState<TermsSection[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetchTerms()
+      .then(setSections)
+      .catch((e: Error) => setError(e.message))
+  }, [])
+
   return (
     <LegalLayout title="Salgsvilkår">
-      <p>
-        Disse vilkårene gjelder når du bestiller en time hos {BUSINESS.tradeName} på nettsiden. Selger er{' '}
-        {BUSINESS.legalName}, organisasjonsnummer {BUSINESS.orgNumber}, {BUSINESS.address}.
-      </p>
-
-      <h2>Hva du bestiller</h2>
-      <p>
-        Du velger behandlinger og eventuelle tillegg, og en ledig tid. Pris og varighet vises før du bestiller, og
-        prisene er oppgitt i norske kroner inkludert merverdiavgift. Tilleggene (for eksempel glitter, stener eller
-        endring av form) kan gjøre timen lengre, og det vises i kalenderen.
-      </p>
-
-      <h2>Betaling</h2>
-      <p>
-        Du betaler enten i salongen når du kommer til timen, eller på forhånd på nettsiden med Vipps når den
-        muligheten er tilgjengelig. Betaler du med Vipps, holdes tiden av i 10 minutter mens du betaler. Fullføres
-        ikke betalingen, frigis tiden og ingen penger trekkes.
-      </p>
-
-      <h2>Avbestilling og endring</h2>
-      {/* TODO (Agneta): confirm the cancellation time and what happens after it. */}
-      <p>
-        Du kan avbestille timen gratis inntil {FREE_CANCELLATION_HOURS} timer før. Ta kontakt på telefon{' '}
-        <a href={BUSINESS.phoneLink}>{BUSINESS.phoneDisplay}</a> eller via Instagram ({BUSINESS.instagramHandle}). Har
-        du betalt med Vipps og avbestiller i tide, får du pengene tilbake til samme betalingsmiddel. Avbestilles
-        timen senere, eller du ikke møter opp, kan vi kreve betaling for timen.
-      </p>
-
-      <h2>Angrerett</h2>
-      <p>
-        Timen er bestilt til et bestemt tidspunkt, og avbestilling skjer etter reglene over. Har du spørsmål om dine
-        rettigheter som forbruker, kan du kontakte oss eller Forbrukertilsynet.
-      </p>
-
-      <h2>Reklamasjon og klager</h2>
-      {/* TODO (Agneta): confirm the period and how she wants to be contacted. */}
-      <p>
-        Er du ikke fornøyd med resultatet, ta kontakt så raskt som mulig, helst innen 7 dager, så finner vi en
-        løsning, for eksempel retting av behandlingen. Du kan kontakte oss på telefon{' '}
-        <a href={BUSINESS.phoneLink}>{BUSINESS.phoneDisplay}</a>. Vi svarer så fort vi kan. Kommer vi ikke til enighet,
-        kan du ta saken videre til Forbrukertilsynet eller Forbrukerrådet.
-      </p>
-
-      <h2>Retur</h2>
-      <p>Behandlinger er tjenester og kan ikke leveres tilbake. Se reklamasjon over hvis noe ikke er som avtalt.</p>
-
-      <h2>Personopplysninger</h2>
-      <p>
-        Hvordan vi bruker opplysningene du gir oss står i <a href="#/personvern">personvernerklæringen</a>.
-      </p>
+      {error && <p>Kunne ikke hente vilkårene akkurat nå. Prøv igjen senere.</p>}
+      {!sections && !error && <p>Laster…</p>}
+      {sections?.map((section, i) => (
+        <section key={i}>
+          {section.heading && <h2>{section.heading}</h2>}
+          {section.body.split(/\n\s*\n/).map((paragraph, j) => (
+            <p key={j}>{paragraph}</p>
+          ))}
+        </section>
+      ))}
+      {sections && (
+        <p>
+          Hvordan vi bruker opplysningene du gir oss står i <a href="#/personvern">personvernerklæringen</a>.
+        </p>
+      )}
     </LegalLayout>
   )
 }

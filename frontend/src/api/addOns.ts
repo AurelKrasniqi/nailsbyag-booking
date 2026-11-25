@@ -5,8 +5,8 @@ export interface AddOn {
   name: string
   // What the price is per, e.g. "pr. negl". Null for a one-off extra.
   unitLabel: string | null
-  // The boxes (service groups) whose treatments the extra can be added to
-  groupIds: number[]
+  // The treatments the extra can be added to
+  serviceIds: number[]
   priceNok: number
   durationMinutes: number
   // 10 = chosen per nail, 1 = yes or no

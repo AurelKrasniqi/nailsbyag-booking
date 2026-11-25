@@ -7,10 +7,12 @@ import {
   type AddOnInput,
   type AdminAddOn,
 } from '../../api/admin'
+import type { SalonService } from '../../api/salonServices'
 import type { ServiceGroup } from '../../api/serviceGroups'
 
 interface Props {
   groups: ServiceGroup[]
+  services: SalonService[]
   addOns: AdminAddOn[]
   setAddOns: React.Dispatch<React.SetStateAction<AdminAddOn[]>>
   onUnauthorized: () => void
@@ -22,13 +24,13 @@ const EMPTY: AddOnInput = {
   priceNok: 0,
   durationMinutes: 5,
   maxQuantity: 1,
-  groupIds: [],
+  serviceIds: [],
   active: true,
 }
 
 // The "Tillegg" (extras) on the price list: change them, add new ones, or remove them.
-// Which boxes an extra can be added to is chosen per extra.
-export function AddOnsEditor({ groups, addOns, setAddOns, onUnauthorized }: Props) {
+// Which treatments an extra can be added to is chosen per extra (ticked per treatment, listed under their box).
+export function AddOnsEditor({ groups, services, addOns, setAddOns, onUnauthorized }: Props) {
   async function guard<T>(action: () => Promise<T>): Promise<T> {
     try {
       return await action()
@@ -43,14 +45,15 @@ export function AddOnsEditor({ groups, addOns, setAddOns, onUnauthorized }: Prop
       <h2>Tillegg</h2>
       <p className="admin-hint">
         Ekstra ting kunden kan legge til på en behandling. Pris og tid gjelder per enhet (f.eks. per negl). Velg hvilke
-        bokser tillegget kan velges i.
+        behandlinger tillegget kan velges på.
       </p>
       <ul className="admin-list price-list">
         {addOns.map((a) => (
           <AddOnRow
             // Starts fresh from the server's answer after saving
-            key={`${a.id}-${a.name}-${a.unitLabel}-${a.priceNok}-${a.durationMinutes}-${a.maxQuantity}-${a.active}-${a.groupIds.join(',')}`}
+            key={`${a.id}-${a.name}-${a.unitLabel}-${a.priceNok}-${a.durationMinutes}-${a.maxQuantity}-${a.active}-${a.serviceIds.join(',')}`}
             groups={groups}
+            services={services}
             value={a}
             onSave={(input) =>
               guard(async () => {
@@ -72,6 +75,7 @@ export function AddOnsEditor({ groups, addOns, setAddOns, onUnauthorized }: Prop
       <ul className="admin-list price-list">
         <AddOnRow
           groups={groups}
+          services={services}
           value={EMPTY}
           isNew
           onSave={(input) =>
@@ -88,18 +92,19 @@ export function AddOnsEditor({ groups, addOns, setAddOns, onUnauthorized }: Prop
 
 interface RowProps {
   groups: ServiceGroup[]
+  services: SalonService[]
   value: AddOnInput
   isNew?: boolean
   onSave: (input: AddOnInput) => Promise<void>
   onDelete?: () => Promise<void>
 }
 
-function AddOnRow({ groups, value, isNew = false, onSave, onDelete }: RowProps) {
+function AddOnRow({ groups, services, value, isNew = false, onSave, onDelete }: RowProps) {
   const [draft, setDraft] = useState(value)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const valid = draft.name.trim() !== '' && draft.groupIds.length > 0 && draft.durationMinutes >= 1 && draft.maxQuantity >= 1
+  const valid = draft.name.trim() !== '' && draft.serviceIds.length > 0 && draft.durationMinutes >= 1 && draft.maxQuantity >= 1
   const changed = isNew || JSON.stringify(draft) !== JSON.stringify(value)
 
   async function run(action: () => Promise<void>) {
@@ -126,9 +131,16 @@ function AddOnRow({ groups, value, isNew = false, onSave, onDelete }: RowProps) 
     await run(onDelete)
   }
 
-  function toggleGroup(id: number) {
-    const has = draft.groupIds.includes(id)
-    setDraft({ ...draft, groupIds: has ? draft.groupIds.filter((g) => g !== id) : [...draft.groupIds, id].sort((a, b) => a - b) })
+  function toggleService(id: number) {
+    const has = draft.serviceIds.includes(id)
+    setDraft({ ...draft, serviceIds: has ? draft.serviceIds.filter((s) => s !== id) : [...draft.serviceIds, id].sort((a, b) => a - b) })
+  }
+
+  // Tick or untick every treatment in a box at once
+  function toggleBox(boxServices: SalonService[], on: boolean) {
+    const ids = new Set(boxServices.map((s) => s.id))
+    const rest = draft.serviceIds.filter((id) => !ids.has(id))
+    setDraft({ ...draft, serviceIds: on ? [...rest, ...ids].sort((a, b) => a - b) : rest })
   }
 
   return (
@@ -185,13 +197,28 @@ function AddOnRow({ groups, value, isNew = false, onSave, onDelete }: RowProps) 
       </label>
 
       <div className="addon-groups">
-        <span className="admin-muted">Kan velges i:</span>
-        {groups.map((g) => (
-          <label key={g.id} className="check-field">
-            <input type="checkbox" checked={draft.groupIds.includes(g.id)} onChange={() => toggleGroup(g.id)} />{' '}
-            {g.eyebrow ? `${g.eyebrow} · ${g.title}` : g.title}
-          </label>
-        ))}
+        <span className="admin-muted">Kan velges på:</span>
+        {groups.map((g) => {
+          const boxServices = services.filter((s) => s.groupId === g.id)
+          if (boxServices.length === 0) return null
+          const allOn = boxServices.every((s) => draft.serviceIds.includes(s.id))
+          return (
+            <fieldset key={g.id} className="addon-box">
+              <legend>
+                <label className="check-field">
+                  <input type="checkbox" checked={allOn} onChange={(e) => toggleBox(boxServices, e.target.checked)} />{' '}
+                  {g.eyebrow ? `${g.eyebrow} · ${g.title}` : g.title}
+                </label>
+              </legend>
+              {boxServices.map((s) => (
+                <label key={s.id} className="check-field">
+                  <input type="checkbox" checked={draft.serviceIds.includes(s.id)} onChange={() => toggleService(s.id)} />{' '}
+                  {s.name}
+                </label>
+              ))}
+            </fieldset>
+          )
+        })}
       </div>
 
       <label className="check-field">
@@ -209,7 +236,7 @@ function AddOnRow({ groups, value, isNew = false, onSave, onDelete }: RowProps) 
         </button>
       </span>
       {!valid && changed && (
-        <p className="admin-muted price-error">Trenger navn og minst én boks tillegget kan velges i.</p>
+        <p className="admin-muted price-error">Trenger navn og minst én behandling tillegget kan velges på.</p>
       )}
       {error && <p className="error price-error">{error}</p>}
     </li>
